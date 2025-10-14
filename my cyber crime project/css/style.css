@@ -210,3 +210,8 @@ body::before {
     margin: 0 2rem;
     color: #a5c7ff;
 }
+
+#assistant-text {
+    white-space: pre-wrap; /* This preserves line breaks and spaces */
+    word-wrap: break-word;   /* This ensures long words don't overflow */
+}
