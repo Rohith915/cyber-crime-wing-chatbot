@@ -1,0 +1,212 @@
+/* GENERAL & BACKGROUND STYLES */
+:root {
+    --panel-bg: rgba(21, 28, 49, 0.6);
+    --border-color: rgba(67, 126, 213, 0.3);
+    --accent-color: #437ed5;
+    --text-primary: #e5e7eb;
+    --text-secondary: #9ca3af;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    color: var(--text-primary);
+    background-color: #0c101d;
+    background-image: url('../images/tn-police-logo.png'); /* Path to your logo */
+    background-size: 35%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    overflow: hidden; /* Prevent scrolling of the main page */
+}
+
+/* Glass effect overlay */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(12, 16, 29, 0.4);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    z-index: -1;
+}
+
+/* MAIN 3-PANEL GRID LAYOUT */
+.main-grid {
+    display: grid;
+    grid-template-columns: 280px 1fr 320px; /* Left, Middle, Right panel widths */
+    height: calc(100vh - 40px); /* Full height minus news ticker */
+    gap: 1.5rem;
+    padding: 1.5rem;
+}
+
+/* GENERAL PANEL STYLES */
+.left-panel, .middle-panel, .right-panel {
+    background: var(--panel-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.panel-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0; /* Prevent header from shrinking */
+}
+
+.panel-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: white;
+}
+
+.panel-content {
+    padding: 1.5rem;
+    overflow-y: auto; /* Allow content to scroll */
+    height: 100%;
+}
+
+/* Scrollbar styling */
+.panel-content::-webkit-scrollbar { width: 6px; }
+.panel-content::-webkit-scrollbar-track { background: transparent; }
+.panel-content::-webkit-scrollbar-thumb { background: #437ed5; border-radius: 3px; }
+
+/* LEFT PANEL: HISTORY */
+#history-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+#history-list li {
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    font-size: 0.95rem;
+    background-color: rgba(255, 255, 255, 0.05);
+}
+#history-list li:hover {
+    background-color: var(--accent-color);
+    color: white;
+}
+.history-placeholder {
+    font-style: italic;
+    color: var(--text-secondary);
+    cursor: default !important;
+    background-color: transparent !important;
+}
+
+/* MIDDLE PANEL: SOP & SEARCH */
+.search-bar-container {
+    display: flex;
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+#searchInput {
+    flex-grow: 1;
+    background-color: rgba(0,0,0,0.3);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 0.75rem 1rem;
+    border-radius: 8px 0 0 8px;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.2s ease;
+}
+#searchInput:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(67, 126, 213, 0.4);
+}
+#searchButton {
+    background-color: var(--accent-color);
+    color: white;
+    font-weight: 600;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0 8px 8px 0;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.2s ease;
+}
+#searchButton:hover { background-color: #5a91e0; }
+
+#sop-display {
+    overflow-y: auto;
+    padding: 1.5rem;
+}
+#sop-display::-webkit-scrollbar { width: 6px; }
+#sop-display::-webkit-scrollbar-track { background: transparent; }
+#sop-display::-webkit-scrollbar-thumb { background: #437ed5; border-radius: 3px; }
+
+.initial-text-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
+    color: var(--text-secondary);
+}
+.logo-watermark { width: 120px; opacity: 0.4; margin-bottom: 1rem; }
+.sop-card { padding: 1rem; border: none; background: transparent; }
+.sop-card h2 { font-size: 1.8rem; color: #a5c7ff; }
+.sop-card h3 { font-size: 1.1rem; color: white; border-left: 3px solid var(--accent-color); padding-left: 0.75rem; margin-top: 1.5rem;}
+
+/* RIGHT PANEL: ASSISTANT */
+.assistant-header { display: flex; align-items: center; gap: 1rem; }
+.assistant-avatar { width: 40px; height: 40px; }
+.assistant-chat-log {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end; /* Chat starts from bottom */
+}
+#assistant-text {
+    background: rgba(67, 126, 213, 0.2);
+    padding: 1rem;
+    border-radius: 12px;
+    line-height: 1.6;
+    border: 1px solid var(--border-color);
+}
+.assistant-input-container {
+    display: flex;
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--border-color);
+}
+#officer-question { flex-grow: 1; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: var(--text-primary); padding: 0.6rem 1rem; border-radius: 6px; font-size: 0.9rem; outline: none; }
+#ask-button { background-color: transparent; border: 1px solid var(--accent-color); color: var(--accent-color); padding: 0.6rem 1rem; border-radius: 6px; cursor: pointer; margin-left: 0.5rem; font-weight: 600; transition: all 0.2s ease; }
+#ask-button:hover { background-color: var(--accent-color); color: white; }
+
+/* NEWS TICKER */
+.news-ticker-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 40px;
+    background-color: rgba(12, 16, 29, 0.8);
+    border-top: 1px solid var(--border-color);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+}
+.news-ticker {
+    width: 100%;
+    white-space: nowrap;
+    animation: ticker-scroll 40s linear infinite;
+}
+@keyframes ticker-scroll {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+}
+#news-text {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    padding-left: 2rem;
+}
+#news-text span {
+    margin: 0 2rem;
+    color: #a5c7ff;
+}

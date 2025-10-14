@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber Crime Command Center</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://unpkg.com/compromise"></script>
+</head>
+<body>
+
+    <div class="main-grid">
+        <aside class="left-panel">
+            <div class="panel-header">
+                <h3>Investigation History</h3>
+            </div>
+            <div class="panel-content">
+                <ul id="history-list">
+                    <li class="history-placeholder">Your recently accessed cases will appear here.</li>
+                </ul>
+            </div>
+        </aside>
+
+        <main class="middle-panel">
+            <div class="search-bar-container">
+                <input type="text" id="searchInput" list="crime-types" placeholder="Enter crime type or keyword (e.g., 'otp fraud')...">
+                <datalist id="crime-types"></datalist>
+                <button id="searchButton">Access SOP</button>
+            </div>
+            <div id="sop-display">
+                <div class="initial-text-container">
+                    <img src="tn-police-logo.png" alt="TN Police Logo" class="logo-watermark">
+                    <h2>Cyber Crime Command Center</h2>
+                    <p>Enter a case type above to load the Standard Operating Procedure.</p>
+                </div>
+            </div>
+        </main>
+
+        <aside class="right-panel">
+            <div class="panel-header assistant-header">
+                <img src="singam.png" alt="Assistant" class="assistant-avatar">
+                <h3>Smart Singham (The AI)</h3>
+            </div>
+            <div class="panel-content assistant-chat-log" id="assistant-chat-log">
+                 <p id="assistant-text">Welcome, Officer. I am ready to assist. Please select a case type to begin the investigation.</p>
+            </div>
+            <div class="assistant-input-container">
+                <input type="text" id="officer-question" placeholder="Ask about this case...">
+                <button id="ask-button">Ask</button>
+            </div>
+        </aside>
+    </div>
+
+    <div class="news-ticker-container">
+        <div class="news-ticker">
+            <span id="news-text"></span>
+        </div>
+    </div>
+
+    <script src="data/sopData.js"></script>
+    <script src="js/script.js"></script>
+</body>
+</html>
