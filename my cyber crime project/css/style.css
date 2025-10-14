@@ -62,10 +62,15 @@ body::before {
     color: white;
 }
 
+/* --- CHANGE 1: Made the panel-content a flex container --- */
 .panel-content {
     padding: 1.5rem;
-    overflow-y: auto; /* Allow content to scroll */
-    height: 100%;
+    overflow-y: auto;
+    flex-grow: 1;
+    min-height: 0;
+    scroll-behavior: smooth;
+    display: flex;           /* This makes the scrollable area a flex container */
+    flex-direction: column;  /* Stack children vertically */
 }
 
 /* Scrollbar styling */
@@ -158,22 +163,29 @@ body::before {
 /* RIGHT PANEL: ASSISTANT */
 .assistant-header { display: flex; align-items: center; gap: 1rem; }
 .assistant-avatar { width: 40px; height: 40px; }
+
+/* --- CHANGE 2: Simplified the inner container --- */
 .assistant-chat-log {
     display: flex;
     flex-direction: column;
-    justify-content: flex-end; /* Chat starts from bottom */
+    flex-grow: 1; /* This makes the log grow to fill the available space */
 }
+
 #assistant-text {
     background: rgba(67, 126, 213, 0.2);
     padding: 1rem;
     border-radius: 12px;
     line-height: 1.6;
     border: 1px solid var(--border-color);
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    margin-top: auto; /* This correctly pushes the text to the bottom */
 }
 .assistant-input-container {
     display: flex;
     padding: 1rem 1.5rem;
     border-top: 1px solid var(--border-color);
+    flex-shrink: 0;
 }
 #officer-question { flex-grow: 1; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: var(--text-primary); padding: 0.6rem 1rem; border-radius: 6px; font-size: 0.9rem; outline: none; }
 #ask-button { background-color: transparent; border: 1px solid var(--accent-color); color: var(--accent-color); padding: 0.6rem 1rem; border-radius: 6px; cursor: pointer; margin-left: 0.5rem; font-weight: 600; transition: all 0.2s ease; }
@@ -209,9 +221,4 @@ body::before {
 #news-text span {
     margin: 0 2rem;
     color: #a5c7ff;
-}
-
-#assistant-text {
-    white-space: pre-wrap; /* This preserves line breaks and spaces */
-    word-wrap: break-word;   /* This ensures long words don't overflow */
 }
