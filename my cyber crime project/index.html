@@ -12,11 +12,12 @@
 </head>
 <body>
 
-    <div class="main-grid">
-        <aside class="left-panel">
+    <div class="main-grid left-panel-collapsed" id="main-grid">
+        
+        <aside class="left-panel collapsed" id="left-panel">
             <div class="panel-header">
                 <h3>Investigation History</h3>
-            </div>
+                </div>
             <div class="panel-content">
                 <ul id="history-list">
                     <li class="history-placeholder">Your recently accessed cases will appear here.</li>
@@ -26,6 +27,8 @@
 
         <main class="middle-panel">
             <div class="search-bar-container">
+                <button id="history-toggle" class="panel-toggle-button" title="Show History">&#9776;</button>
+                
                 <input type="text" id="searchInput" list="crime-types" placeholder="Enter crime type or keyword (e.g., 'otp fraud')...">
                 <datalist id="crime-types"></datalist>
                 <button id="searchButton">Access SOP</button>
