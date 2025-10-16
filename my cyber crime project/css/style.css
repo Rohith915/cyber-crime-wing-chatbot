@@ -1,150 +1,169 @@
-/* GENERAL & BACKGROUND STYLES */
-:root {
-    --panel-bg: rgba(21, 28, 49, 0.6);
-    --border-color: rgba(67, 126, 213, 0.3);
-    --accent-color: #437ed5;
-    --text-primary: #e5e7eb;
-    --text-secondary: #9ca3af;
-}
-
+/* General Body and Font Styles */
 body {
     font-family: 'Inter', sans-serif;
+    background-color: #1e1e1e;
+    color: #d4d4d4;
     margin: 0;
-    color: var(--text-primary);
-    background-color: #0c101d;
-    background-image: url('../images/tn-police-logo.png'); /* Path to your logo */
-    background-size: 35%;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    overflow: hidden; /* Prevent scrolling of the main page */
-}
-
-/* Glass effect overlay */
-body::before {
-    content: '';
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background-color: rgba(12, 16, 29, 0.4);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    z-index: -1;
-}
-
-/* MAIN 3-PANEL GRID LAYOUT */
-.main-grid {
-    display: grid;
-    grid-template-columns: 280px 1fr 320px; /* Left, Middle, Right panel widths */
-    height: calc(100vh - 40px); /* Full height minus news ticker */
-    gap: 1.5rem;
-    padding: 1.5rem;
-}
-
-/* GENERAL PANEL STYLES */
-.left-panel, .middle-panel, .right-panel {
-    background: var(--panel-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 1rem;
+    height: 100vh;
     display: flex;
     flex-direction: column;
     overflow: hidden;
 }
 
+/* --- Main Grid Layout --- */
+.main-grid {
+    display: grid;
+    /* Default (expanded) state */
+    grid-template-columns: 250px 1fr 320px;
+    gap: 15px;
+    padding: 15px;
+    height: calc(100vh - 45px); /* Adjust based on news ticker height */
+    box-sizing: border-box;
+    transition: grid-template-columns 0.35s ease-in-out;
+}
+
+/* MODIFICATION: Grid layout when collapsed */
+.main-grid.left-panel-collapsed {
+    grid-template-columns: 0px 1fr 320px;
+    gap: 0 15px; /* No gap on the left */
+}
+
+/* Panel Base Styles */
+.left-panel, .middle-panel, .right-panel {
+    background-color: #2d2d2d;
+    border: 1px solid #4a4a4a;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    color: #d4d4d4;
+}
+
 .panel-header {
-    padding: 1rem 1.5rem;
-    border-bottom: 1px solid var(--border-color);
-    flex-shrink: 0; /* Prevent header from shrinking */
+    padding: 12px 15px;
+    border-bottom: 1px solid #4a4a4a;
+    background-color: #3a3a3a;
+    flex-shrink: 0;
 }
 
 .panel-header h3 {
     margin: 0;
-    font-size: 1.1rem;
-    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    color: #ffffff;
 }
 
-/* --- CHANGE 1: Made the panel-content a flex container --- */
 .panel-content {
-    padding: 1.5rem;
+    padding: 15px;
     overflow-y: auto;
     flex-grow: 1;
-    min-height: 0;
-    scroll-behavior: smooth;
-    display: flex;           /* This makes the scrollable area a flex container */
-    flex-direction: column;  /* Stack children vertically */
 }
 
-/* Scrollbar styling */
-.panel-content::-webkit-scrollbar { width: 6px; }
-.panel-content::-webkit-scrollbar-track { background: transparent; }
-.panel-content::-webkit-scrollbar-thumb { background: #437ed5; border-radius: 3px; }
-
-/* LEFT PANEL: HISTORY */
-#history-list {
-    list-style: none;
+/* --- Left Panel (Investigation History) --- */
+.left-panel {
+    position: relative;
+    transition: all 0.35s ease-in-out;
+    /* MODIFICATION: Allow panel to shrink to zero */
+    min-width: 0;
     padding: 0;
-    margin: 0;
-}
-#history-list li {
-    padding: 0.75rem 1rem;
-    margin-bottom: 0.5rem;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-    font-size: 0.95rem;
-    background-color: rgba(255, 255, 255, 0.05);
-}
-#history-list li:hover {
-    background-color: var(--accent-color);
-    color: white;
-}
-.history-placeholder {
-    font-style: italic;
-    color: var(--text-secondary);
-    cursor: default !important;
-    background-color: transparent !important;
+    border-width: 0;
 }
 
-/* MIDDLE PANEL: SOP & SEARCH */
-.search-bar-container {
+/* MODIFICATION: Fade out content when panel collapses */
+.left-panel .panel-header,
+.left-panel .panel-content {
+    transition: opacity 0.2s ease-out;
+    white-space: nowrap; 
+}
+
+/* MODIFICATION: Styles for the collapsed state */
+.left-panel.collapsed {
+    border-width: 0;
+    opacity: 0;
+    visibility: hidden;
+    /* This makes it shrink to 0px */
+    width: 0;
+}
+
+
+/* --- Middle Panel (SOP Display) --- */
+.middle-panel {
     display: flex;
-    padding: 1.5rem;
-    border-bottom: 1px solid var(--border-color);
+    flex-direction: column;
 }
-#searchInput {
-    flex-grow: 1;
-    background-color: rgba(0,0,0,0.3);
-    border: 1px solid var(--border-color);
-    color: var(--text-primary);
-    padding: 0.75rem 1rem;
-    border-radius: 8px 0 0 8px;
-    font-size: 1rem;
-    outline: none;
-    transition: all 0.2s ease;
+
+.search-bar-container {
+    padding: 15px;
+    border-bottom: 1px solid #4a4a4a;
+    display: flex;
+    gap: 10px;
+    align-items: center; /* Align all items vertically */
 }
-#searchInput:focus {
-    border-color: var(--accent-color);
-    box-shadow: 0 0 0 3px rgba(67, 126, 213, 0.4);
-}
-#searchButton {
-    background-color: var(--accent-color);
-    color: white;
-    font-weight: 600;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 0 8px 8px 0;
+
+/* MODIFICATION: New styles for the toggle button in its new home */
+.panel-toggle-button {
+    background: #3a3a3a;
+    border: 1px solid #4a4a4a;
+    border-radius: 5px;
+    font-size: 20px; 
+    font-weight: bold;
+    color: #d4d4d4;
     cursor: pointer;
-    font-size: 1rem;
-    transition: background-color 0.2s ease;
+    width: 38px;  /* Match input height */
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    line-height: 1;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
 }
-#searchButton:hover { background-color: #5a91e0; }
+.panel-toggle-button:hover {
+    background-color: #4a4a4a;
+    border-color: #6a6a6a;
+}
+
+/* MODIFICATION: Inputs now have a consistent height */
+#searchInput, #officer-question {
+    flex-grow: 1;
+    padding: 10px;
+    border: 1px solid #4a4a4a;
+    border-radius: 5px;
+    font-size: 14px;
+    background-color: #1e1e1e;
+    color: #d4d4d4;
+    height: 16px; /* 38px total height with padding/border */
+    line-height: 16px;
+}
+#searchInput::placeholder, #officer-question::placeholder {
+    color: #888;
+}
+
+/* MODIFICATION: Buttons now have a consistent height */
+#searchButton, #ask-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007acc;
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    height: 38px; 
+    box-sizing: border-box; /* Include padding in height calc */
+}
+#searchButton:hover, #ask-button:hover {
+    background-color: #005f9e;
+}
 
 #sop-display {
+    flex-grow: 1;
     overflow-y: auto;
-    padding: 1.5rem;
+    padding: 20px;
+    background-color: #252526;
 }
-#sop-display::-webkit-scrollbar { width: 6px; }
-#sop-display::-webkit-scrollbar-track { background: transparent; }
-#sop-display::-webkit-scrollbar-thumb { background: #437ed5; border-radius: 3px; }
 
 .initial-text-container {
     display: flex;
@@ -153,72 +172,149 @@ body::before {
     justify-content: center;
     height: 100%;
     text-align: center;
-    color: var(--text-secondary);
-}
-.logo-watermark { width: 120px; opacity: 0.4; margin-bottom: 1rem; }
-.sop-card { padding: 1rem; border: none; background: transparent; }
-.sop-card h2 { font-size: 1.8rem; color: #a5c7ff; }
-.sop-card h3 { font-size: 1.1rem; color: white; border-left: 3px solid var(--accent-color); padding-left: 0.75rem; margin-top: 1.5rem;}
-
-/* RIGHT PANEL: ASSISTANT */
-.assistant-header { display: flex; align-items: center; gap: 1rem; }
-.assistant-avatar { width: 40px; height: 40px; }
-
-/* --- CHANGE 2: Simplified the inner container --- */
-.assistant-chat-log {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1; /* This makes the log grow to fill the available space */
+    color: #888;
 }
 
-#assistant-text {
-    background: rgba(67, 126, 213, 0.2);
-    padding: 1rem;
-    border-radius: 12px;
-    line-height: 1.6;
-    border: 1px solid var(--border-color);
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    margin-top: auto; /* This correctly pushes the text to the bottom */
+.logo-watermark {
+    width: 100px;
+    opacity: 0.3;
+    margin-bottom: 20px;
 }
-.assistant-input-container {
-    display: flex;
-    padding: 1rem 1.5rem;
-    border-top: 1px solid var(--border-color);
-    flex-shrink: 0;
-}
-#officer-question { flex-grow: 1; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: var(--text-primary); padding: 0.6rem 1rem; border-radius: 6px; font-size: 0.9rem; outline: none; }
-#ask-button { background-color: transparent; border: 1px solid var(--accent-color); color: var(--accent-color); padding: 0.6rem 1rem; border-radius: 6px; cursor: pointer; margin-left: 0.5rem; font-weight: 600; transition: all 0.2s ease; }
-#ask-button:hover { background-color: var(--accent-color); color: white; }
 
-/* NEWS TICKER */
-.news-ticker-container {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 40px;
-    background-color: rgba(12, 16, 29, 0.8);
-    border-top: 1px solid var(--border-color);
-    overflow: hidden;
+/* --- Right Panel (AI Assistant) --- */
+.assistant-header {
     display: flex;
     align-items: center;
+    gap: 10px;
+}
+.assistant-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+.assistant-chat-log {
+    background-color: #252526;
+    border-radius: 5px;
+    line-height: 1.6;
+}
+.assistant-input-container {
+    padding: 15px;
+    border-top: 1px solid #4a4a4a;
+    display: flex;
+    gap: 10px;
+}
+
+
+/* --- News Ticker --- */
+.news-ticker-container {
+    background-color: #000;
+    color: #f8f9fa;
+    padding: 10px;
+    overflow: hidden;
+    white-space: nowrap;
+    box-sizing: border-box;
+    height: 45px;
+    flex-shrink: 0;
+    border-top: 1px solid #4a4a4a;
 }
 .news-ticker {
-    width: 100%;
-    white-space: nowrap;
-    animation: ticker-scroll 40s linear infinite;
+    display: inline-block;
+    padding-left: 100%;
+    animation: ticker-scroll 30s linear infinite;
+}
+.news-ticker span {
+    color: #ffc107;
+    font-weight: 600;
 }
 @keyframes ticker-scroll {
-    0% { transform: translateX(100%); }
+    0% { transform: translateX(0); }
     100% { transform: translateX(-100%); }
 }
-#news-text {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-    padding-left: 2rem;
+
+/* === INTERACTIVE SOP FLOW STYLES === */
+
+.sop-card.interactive-flow {
+    max-height: calc(100vh - 250px);
+    overflow-y: auto;
+    padding: 10px 20px;
+    background-color: #252526;
+    border: 1px solid #4a4a4a;
+    border-radius: 8px;
+    scroll-behavior: smooth;
 }
-#news-text span {
-    margin: 0 2rem;
-    color: #a5c7ff;
+
+.interactive-step { padding: 15px 0; }
+hr.step-separator { border: 0; height: 1px; background-color: #4a4a4a; margin: 10px 0; }
+.sop-options-container { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; padding-top: 15px; }
+
+/* Active Button Style */
+.sop-card.interactive-flow .sop-button {
+    display: inline-block;
+    padding: 12px 18px;
+    border: 1px solid #007acc;
+    border-radius: 6px; 
+    font-size: 14px;
+    font-weight: 600;
+    color: #ffffff;
+    background-color: #007acc;
+    cursor: pointer;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease-in-out;
+}
+.sop-card.interactive-flow .sop-button:hover {
+    background-color: #005f9e;
+    border-color: #005f9e;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Readable Disabled Button Style */
+.sop-card.interactive-flow .sop-button:disabled {
+    background-color: #3a3a3a;
+    background-image: none;
+    color: #9a9a9a; 
+    border-color: #4a4a4a;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
+    opacity: 1; 
+}
+
+/* Download Button Style */
+.sop-card.interactive-flow .sop-button.download-button,
+.sop-card.interactive-flow .sop-button.download-button:disabled { 
+    background-color: #1a936f;
+    border-color: #157a5d;
+    color: #ffffff;
+    cursor: pointer;
+}
+.sop-card.interactive-flow .sop-button.download-button:hover {
+    background-color: #157a5d;
+}
+
+/* Chatbot Message Style */
+.chatbot-message { 
+    line-height: 1.6; 
+    color: #d4d4d4; 
+    word-wrap: break-word; 
+}
+.chatbot-message h3,
+.chatbot-message strong {
+    color: #ffffff;
+}
+
+/* Code Block Style */
+pre.notice-sample {
+    background-color: #1e1e1e;
+    border: 1px solid #4a4a4a;
+    border-radius: 5px;
+    padding: 15px;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #d4d4d4;
+    margin-top: 15px;
+    margin-bottom: 15px;
 }
