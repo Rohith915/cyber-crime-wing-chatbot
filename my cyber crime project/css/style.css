@@ -98,7 +98,7 @@ body {
     border-bottom: 1px solid #4a4a4a;
     display: flex;
     gap: 10px;
-    align-items: center; /* Align all items vertically */
+    align-items: flex-start; /* Changed from 'center' to 'flex-start' */
 }
 
 /* MODIFICATION: New styles for the toggle button in its new home */
@@ -134,7 +134,7 @@ body {
     font-size: 14px;
     background-color: #1e1e1e;
     color: #d4d4d4;
-    height: 16px; /* 38px total height with padding/border */
+    height: 38px; /* 38px total height with padding/border */
     line-height: 16px;
 }
 #searchInput::placeholder, #officer-question::placeholder {
@@ -317,4 +317,44 @@ pre.notice-sample {
     color: #d4d4d4;
     margin-top: 15px;
     margin-bottom: 15px;
+}
+
+/* === STYLES FOR CUSTOM SUGGESTION BOX (Added Back) === */
+
+.search-wrapper {
+    position: relative;
+    flex-grow: 1; /* Allows the wrapper to fill the space */
+}
+
+/* Make sure the input field takes the full width of its wrapper */
+#searchInput {
+    width: 100%;
+    box-sizing: border-box; /* Ensures padding doesn't affect width */
+}
+
+.suggestions-container {
+    display: none; /* Hidden by default */
+    position: absolute;
+    /* Use the same theme colors */
+    background-color: #2d2d2d; 
+    border: 1px solid #4a4a4a;
+    border-top: none;
+    border-radius: 0 0 5px 5px;
+    width: 100%; /* Match the width of the search input */
+    max-height: 250px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-sizing: border-box;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.suggestion-item {
+    padding: 10px 12px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #d4d4d4; /* Match theme text */
+}
+
+.suggestion-item:hover {
+    background-color: #3a3a3a; /* Match theme hover */
 }
