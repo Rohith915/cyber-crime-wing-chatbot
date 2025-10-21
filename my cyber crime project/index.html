@@ -29,8 +29,12 @@
             <div class="search-bar-container">
                 <button id="history-toggle" class="panel-toggle-button" title="Show History">&#9776;</button>
                 
-                <input type="text" id="searchInput" list="crime-types" placeholder="Enter crime type or keyword (e.g., 'otp fraud')...">
-                <datalist id="crime-types"></datalist>
+                <div class="search-wrapper">
+                    <input type="text" id="searchInput" placeholder="Type or select a crime type..." autocomplete="off">
+                    
+                    <div id="sop-suggestions" class="suggestions-container"></div>
+                </div>
+                
                 <button id="searchButton">Access SOP</button>
             </div>
             <div id="sop-display">
