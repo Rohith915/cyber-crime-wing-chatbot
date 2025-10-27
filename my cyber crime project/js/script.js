@@ -152,6 +152,9 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (crimeKey === "internet banking fraud") { // Assumed key from sopData.js
                 startInternetBankingFraudFlow(); 
                 updateHistory(crimeKey, sopData[crimeKey].title);
+            } else if (crimeKey === "online financial fraud") { // *** NEWLY ADDED ***
+                startOnlineFinancialFraudFlow(); 
+                updateHistory(crimeKey, sopData[crimeKey].title);
             } else {
                 // Original functionality for all other crime types
                 currentCrime = sopData[crimeKey];
@@ -1823,6 +1826,499 @@ The details should include the user's name, registered installation address, and
         }
     };
 
+    // --- *** NEW: Online Financial Fraud Interactive Flow *** ---
+    const onlineFinancialFraudFlow = {
+        'start': {
+            message: "Welcome to the Cybercrime Investigation Assistant. Let's begin the investigation for Online Financial Fraud. Have you received a detailed written complaint from the victim?",
+            options: [
+                { text: "Yes, Received", action: 'p1_checklist_1' },
+                { text: "Not Yet", action: 'p1_action_complaint' }
+            ]
+        },
+        'p1_action_complaint': {
+            message: "<strong>Action Required:</strong> Please obtain a formal written complaint from the victim first. This is mandatory to register an FIR and proceed legally.",
+            options: [
+                { text: "Back", action: 'start' }
+            ]
+        },
+        'p1_checklist_1': {
+            message: "Excellent. A formal complaint is the legal foundation for the investigation.<br><br><strong>Evidence Checklist 1/4:</strong> Have you collected the victim's <strong>bank statement</strong> with the fraudulent transactions clearly identified?",
+            options: [
+                { text: "Collected", action: 'p1_checklist_2' },
+                { text: "Not Yet", action: 'p1_action_checklist_1' }
+            ]
+        },
+        'p1_action_checklist_1': {
+            message: "<strong>Action Required:</strong> This is the most critical piece of evidence. Please instruct the complainant to procure it from their bank immediately.",
+            options: [
+                { text: "Back", action: 'p1_checklist_1' }
+            ]
+        },
+        'p1_checklist_2': {
+            message: "✅ Bank Statement collected. This is the primary document for the financial trail.<br><br><strong>Evidence Checklist 2/4:</strong> Have you collected the <strong>specific details</strong> of the fraudulent transaction(s)? (Beneficiary Account No., IFSC, UPI ID, Wallet No., Merchant Name, Transaction ID)",
+            options: [
+                { text: "Collected", action: 'p1_checklist_3' },
+                { text: "Not Yet", action: 'p1_action_checklist_2' }
+            ]
+        },
+        'p1_action_checklist_2': {
+            message: "<strong>Action Required:</strong> Please obtain these details from the victim's bank statement or transaction messages. We cannot proceed with tracing funds without them.",
+            options: [
+                { text: "Back", action: 'p1_checklist_2' }
+            ]
+        },
+        'p1_checklist_3': {
+            message: "✅ Transaction details collected. We will use these to initiate the money trail.<br><br><strong>Evidence Checklist 3/4:</strong> Have you collected any relevant <strong>screenshots</strong>? (e.g., fraudulent website URL, WhatsApp chats, social media profiles, payment requests).",
+            options: [
+                { text: "Collected", action: 'p1_checklist_4' },
+                { text: "Not Yet", action: 'p1_action_checklist_3' }
+            ]
+        },
+        'p1_action_checklist_3': {
+            message: "<strong>Action Required:</strong> Please collect these screenshots. They are crucial for establishing the digital footprint of the accused.",
+            options: [
+                { text: "Back", action: 'p1_checklist_3' }
+            ]
+        },
+        'p1_checklist_4': {
+            message: "✅ Screenshots collected.<br><br><strong>Evidence Checklist 4/4:</strong> Have you collected the <strong>fraudster's contact details</strong> (e.g., Mobile number, email ID)?",
+            options: [
+                { text: "Collected", action: 'p1_fir_check' },
+                { text: "Not Available", action: 'p1_fir_check_skipped' }
+            ]
+        },
+        'p1_fir_check': {
+            message: "✅ Contact details collected. This will be our starting point for the digital communications trace.<br><br>Now that the preliminary evidence is noted, have you <strong>registered the First Information Report (FIR)</strong>?",
+            options: [
+                { text: "Yes, FIR Registered", action: 'p1_fir_sections' },
+                { text: "No, Not Yet", action: 'p1_action_fir' }
+            ]
+        },
+        'p1_fir_check_skipped': {
+            message: "Understood. We will have to rely solely on the financial trail to identify the accused.<br><br>Now that the preliminary evidence is noted, have you <strong>registered the First Information Report (FIR)</strong>?",
+            options: [
+                { text: "Yes, FIR Registered", action: 'p1_fir_sections' },
+                { text: "No, Not Yet", action: 'p1_action_fir' }
+            ]
+        },
+        'p1_action_fir': {
+            message: "<strong>Action Required:</strong> Please register the FIR immediately. A registered FIR is mandatory to issue notices under Section 91 Cr.P.C. to banks and intermediaries.",
+            options: [
+                { text: "Back", action: 'p1_checklist_4' } // Go back to the last relevant step
+            ]
+        },
+        'p1_fir_sections': {
+            message: "Thank you. Based on the nature of the crime, have the following sections been applied?<br>⚖️ <strong>IPC:</strong> Section 419 (Cheating by Personation), Section 420 (Cheating).<br>⚖️ <strong>IT Act:</strong> Section 66C (Identity Theft), Section 66D (Cheating by personation).",
+            options: [
+                { text: "Yes / Will Add", action: 'p2_triage' }
+            ]
+        },
+        'p2_triage': {
+            message: "With the FIR registered, we must trace the funds. Please select the primary method used by the fraudster to receive or withdraw the money, as per the victim's bank statement.",
+            options: [
+                { text: "ATM Withdrawal", action: 'p3_1_atm_start' },
+                { text: "UPI / Wallet Transfer", action: 'p3_2_upi_start' },
+                { text: "Bank Transfer (NEFT/RTGS/IMPS)", action: 'p3_2_upi_start' },
+                { text: "E-Commerce Purchase", action: 'p3_3_ecommerce_start' },
+                { text: "SIM Swap / OTP Fraud", action: 'p3_4_simswap_start' }
+            ]
+        },
+        // --- 3.1 ATM ---
+        'p3_1_atm_start': {
+            message: "<strong>Sub-Flow: ATM / Card Fraud</strong><br>You have selected ATM Withdrawal. First, let's confirm the point of compromise. Did the fraud involve:",
+            options: [
+                { text: "Skimming/Cloning", action: 'p3_1_atm_details' },
+                { text: "Physical Card Theft", action: 'p3_1_atm_details' }
+            ]
+        },
+        'p3_1_atm_details': {
+            message: "From the victim's bank statement or SMS, have you identified the <strong>ATM ID, Bank Name, and Location</strong> of the fraudulent withdrawal?",
+            options: [
+                { text: "Yes, Identified", action: 'p3_1_atm_notice' },
+                { text: "Not Yet Identified", action: 'p3_1_atm_action_identify' }
+            ]
+        },
+        'p3_1_atm_action_identify': {
+            message: "<strong>Action Required:</strong> Send a notice to the victim's bank with the transaction details and request them to provide the ATM ID and location. This is the first step.",
+            options: [
+                { text: "Back", action: 'p3_1_atm_details' }
+            ]
+        },
+        'p3_1_atm_notice': {
+            message: "<strong>URGENT ACTION:</strong> Have you sent a notice to the concerned bank's nodal officer requesting to preserve and provide the <strong>CCTV footage</strong> for the specified ATM at the exact date and time?",
+            options: [
+                { text: "Notice Sent", action: 'p3_1_atm_pattern' },
+                { text: "Need Sample Notice", action: 'p3_1_atm_sample' }
+            ]
+        },
+        'p3_1_atm_sample': {
+            message: `📄 Here is a sample notice. Please fill in the details and send it immediately, as footage is often overwritten.
+            <pre class="notice-sample">
+NOTICE UNDER SECTION 91 Cr.P.C.
+From: [Your Name, Designation, Police Station]
+To: The Nodal Officer, [Bank Name]
+
+Ref: Cr.No. [FIR No.], u/s [Sections]
+Sub: Request for preservation and provision of CCTV footage and transaction logs.
+
+In the investigation of the above case, a fraudulent withdrawal was made from:
+- ATM ID: [ATM ID]
+- Location: [ATM Location]
+- Date: [Date]
+- Time: [Time]
+- Amount: Rs. [Amount]
+- Victim's Card No: [Last 4 digits]
+
+You are directed under Sec 91 Cr.P.C. to immediately preserve and provide:
+1. CCTV footage from all cameras (lobby, machine, entrance) for the period.
+2. The complete Electronic Journal (EJ) log for the transaction.
+3. Pin-hole camera images from the ATM machine.
+This evidence is critical and time-sensitive.
+(Signature & Seal of IO)
+            </pre>`,
+            options: [
+                { text: "Notice Sent", action: 'p3_1_atm_pattern' },
+                { text: "Back", action: 'p3_1_atm_notice' }
+            ]
+        },
+        'p3_1_atm_pattern': {
+            message: "✅ Excellent. Have you also requested the bank to check for other similar MO complaints linked to the same ATM (potential skimming point)?",
+            options: [
+                { text: "Yes, Requested", action: 'p3_1_atm_await' },
+                { text: "Not Yet", action: 'p3_1_atm_await' } // Continue anyway
+            ]
+        },
+        'p3_1_atm_await': {
+            message: "Once the footage is received, analyze it to identify the suspect. We will await the response.",
+            options: [
+                { text: "Footage Received", action: 'p5_field_start' },
+                { text: "Return to Triage", action: 'p2_triage' }
+            ]
+        },
+        // --- 3.2 UPI / Bank ---
+        'p3_2_upi_start': {
+            message: "<strong>Sub-Flow: UPI / Wallet / Bank Transfer</strong><br><strong>URGENT ACTION:</strong> The first priority is to prevent further fund movement. Have you sent a notice to the beneficiary bank/wallet provider to immediately place a <strong>debit freeze</strong> on the account?",
+            options: [
+                { text: "Yes, Notice Sent", action: 'p3_2_upi_docs' },
+                { text: "Need Sample Notice", action: 'p3_2_upi_sample' },
+                { text: "No, Not Yet", action: 'p3_2_upi_action_critical' }
+            ]
+        },
+        'p3_2_upi_action_critical': {
+            message: "<strong>CRITICAL ACTION:</strong> Send this notice immediately. Any delay will likely result in the complete withdrawal of the stolen funds, making recovery impossible.",
+            options: [
+                { text: "Back", action: 'p3_2_upi_start' }
+            ]
+        },
+        'p3_2_upi_sample': {
+            message: `📄 Here is a sample notice to freeze the account and request KYC.
+            <pre class="notice-sample">
+NOTICE UNDER SECTION 91 Cr.P.C.
+From: [Your Name, Designation, Police Station]
+To: The Nodal Officer, [Beneficiary Bank/Wallet]
+
+Ref: Cr.No. [FIR No.], u/s [Sections]
+Sub: Request to Freeze Account and Provide Holder Details in Online Fraud Case.
+
+In the investigation of the above case, Rs. [Amount] was fraudulently transferred from the victim's account to the following beneficiary:
+- Account/Wallet Holder Name: [Name]
+- Account Number / UPI ID / Wallet No: [Beneficiary Details]
+- IFSC Code: [IFSC]
+- Transaction Date & Time: [Date, Time]
+- Transaction ID: [Txn ID]
+
+You are directed under Sec 91 Cr.P.C. to:
+1.  <strong>IMMEDIATELY</strong> place a <strong>DEBIT FREEZE</strong> on this account.
+2.  Furnish the complete details of the account holder:
+    a. Account Opening Form (AOF) with color photo.
+    b. All KYC documents (ID and Address Proof).
+    c. Registered mobile number and email ID.
+    d. Complete account statement from opening date.
+    e. IP logs for internet/mobile banking access.
+Please provide details with a 65B certificate.
+(Signature & Seal of IO)
+            </pre>`,
+            options: [
+                { text: "Notice Sent", action: 'p3_2_upi_docs' },
+                { text: "Back", action: 'p3_2_upi_start' }
+            ]
+        },
+        'p3_2_upi_docs': {
+            message: "✅ Excellent. Have you received the KYC documents and the full statement for the beneficiary account?",
+            options: [
+                { text: "Yes, Received", action: 'p3_2_upi_analyze' },
+                { text: "Awaiting Response", action: 'p3_2_upi_await' }
+            ]
+        },
+        'p3_2_upi_await': {
+            message: "Understood. Follow up with the nodal officer. In the meantime, do you have other leads, like the fraudster's phone number?",
+            options: [
+                { text: "Yes, trace fraudster's number", action: 'p4_digital_start_mobile' },
+                { text: "Return to Triage", action: 'p2_triage' }
+            ]
+        },
+        'p3_2_upi_analyze': {
+            message: "Now, analyze the mule account statement. What does the subsequent money trail show?",
+            options: [
+                { text: "Further Transfer to Another Account", action: 'p3_2_upi_layer2' },
+                { text: "Cash Withdrawal from ATM", action: 'p3_2_upi_atm' },
+                { text: "Funds are Still in Account", action: 'p3_2_upi_funds_secured' }
+            ]
+        },
+        'p3_2_upi_layer2': {
+            message: "<strong>New Lead:</strong> A second layer of mule accounts found. You must repeat the process: <strong>Immediately send a new notice</strong> to these new banks to freeze their accounts and request KYC.",
+            options: [
+                { text: "Understood", action: 'p3_2_upi_analyze' }
+            ]
+        },
+        'p3_2_upi_atm': {
+            message: "<strong>New Lead:</strong> This gives us a chance to identify the suspect physically. You have now pivoted to an ATM fraud investigation. Please proceed to that flow to request CCTV footage.",
+            options: [
+                { text: "Go to ATM Flow (Phase 3.1)", action: 'p3_1_atm_details' }
+            ]
+        },
+        'p3_2_upi_funds_secured': {
+            message: "Excellent. The funds are secured. The KYC documents contain a registered mobile number. This is our next lead.",
+            options: [
+                { text: "Proceed to Trace Mobile Number", action: 'p4_digital_start_mobile' }
+            ]
+        },
+        // --- 3.3 E-Commerce ---
+        'p3_3_ecommerce_start': {
+            message: "<strong>Sub-Flow: E-Commerce Purchase</strong><br>You have selected E-Commerce Purchase. Have you identified the merchant (e.g., Flipkart, Amazon) from the bank statement?",
+            options: [
+                { text: "Yes, Identified", action: 'p3_3_ecommerce_notice' },
+                { text: "Not Yet Identified", action: 'p3_3_ecommerce_action_identify' }
+            ]
+        },
+        'p3_3_ecommerce_action_identify': {
+            message: "<strong>Action Required:</strong> Analyze the transaction description in the bank statement. It usually contains the merchant name. If not, ask the victim's bank for merchant details.",
+            options: [
+                { text: "Back", action: 'p3_3_ecommerce_start' }
+            ]
+        },
+        'p3_3_ecommerce_notice': {
+            message: "Now, send a notice u/s 91 CrPC to the nodal officer of the e-commerce platform. Have you sent this notice?",
+            options: [
+                { text: "Notice Sent", action: 'p3_3_ecommerce_await' },
+                { text: "Need Sample Notice", action: 'p3_3_ecommerce_sample' }
+            ]
+        },
+        'p3_3_ecommerce_sample': {
+            message: `📄 Here is a sample notice for an e-commerce platform.
+            <pre class="notice-sample">
+NOTICE UNDER SECTION 91 Cr.P.C.
+From: [Your Name, Designation, Police Station]
+To: The Nodal Officer, [E-commerce Company Name]
+
+Ref: Cr.No. [FIR No.], u/s [Sections]
+Sub: Request for transaction and delivery details in Online Fraud Case.
+
+In the investigation of the above case, a fraudulent transaction was made on your platform:
+- Transaction ID: [Txn ID]
+- Date & Time: [Date, Time]
+- Amount: Rs. [Amount]
+- Victim's Card/Account (Partial): [Victim Card/Acct]
+
+You are directed under Sec 91 Cr.P.C. to provide:
+1. User account details (Name, registered mobile no., email ID).
+2. The product(s) ordered.
+3. The complete delivery address for the order.
+4. The mobile number provided for delivery.
+5. The IP address used to place the order (with date, time, timezone).
+6. Courier/delivery partner details.
+(Signature & Seal of IO)
+            </pre>`,
+            options: [
+                { text: "Notice Sent", action: 'p3_3_ecommerce_await' },
+                { text: "Back", action: 'p3_3_ecommerce_notice' }
+            ]
+        },
+        'p3_3_ecommerce_await': {
+            message: "✅ Good. Once the platform provides the delivery address and contact number, you have a physical lead and a digital lead.",
+            options: [
+                { text: "Data Received", action: 'p3_3_ecommerce_leads' }
+            ]
+        },
+        'p3_3_ecommerce_leads': {
+            message: "You have received the data. Which lead do you want to pursue?",
+            options: [
+                { text: "Trace Physical Address", action: 'p5_field_start' },
+                { text: "Trace Contact Number", action: 'p4_digital_start_mobile' },
+                { text: "Trace IP Address", action: 'p4_digital_start_ip' }
+            ]
+        },
+        // --- 3.4 SIM Swap ---
+        'p3_4_simswap_start': {
+            message: "<strong>Sub-Flow: SIM Swap Fraud</strong><br>This is a multi-stage crime. First, confirm with the victim the exact date and time their original SIM card stopped working.",
+            options: [
+                { text: "Date/Time Collected", action: 'p3_4_simswap_notice' }
+            ]
+        },
+        'p3_4_simswap_notice': {
+            message: "Now, send an urgent notice u/s 91 CrPC to the Nodal Officer of the victim's Mobile Service Provider (MSP). Have you done this?",
+            options: [
+                { text: "Notice Sent", action: 'p3_4_simswap_await' },
+                { text: "Need Sample Notice", action: 'p3_4_simswap_sample' }
+            ]
+        },
+        'p3_4_simswap_sample': {
+            message: `📄 Here is a sample notice for an MSP in a SIM Swap case.
+            <pre class="notice-sample">
+NOTICE UNDER SECTION 91 Cr.P.C.
+From: [Your Name, Designation, Police Station]
+To: The Nodal Officer, [Mobile Service Provider]
+
+Ref: Cr.No. [FIR No.], u/s [Sections]
+Sub: Request for details regarding fraudulent SIM Swap of Mobile No. [Victim's Mobile Number].
+
+This office is investigating a SIM Swap fraud where the victim's mobile number [Victim's Mobile Number] was fraudulently deactivated and a duplicate SIM was issued to the accused.
+You are directed under Sec 91 Cr.P.C. to provide:
+1.  The complete application form (CAF/AOF) submitted by the person who requested the duplicate SIM.
+2.  All ID and address proof documents submitted by the fraudster.
+3.  The location, store address, and employee details of the retail outlet where the SIM swap was processed.
+4.  The date and time the duplicate SIM was activated.
+5.  CCTV footage of the retail store at the time the fraudster visited.
+(Signature & Seal of IO)
+            </pre>`,
+            options: [
+                { text: "Notice Sent", action: 'p3_4_simswap_await' },
+                { text: "Back", action: 'p3_4_simswap_notice' }
+            ]
+        },
+        'p3_4_simswap_await': {
+            message: "✅ Good. Once you receive the documents and store details from the MSP, the next step is to conduct an enquiry at the mobile network store.",
+            options: [
+                { text: "Details Received", action: 'p5_field_start_store' },
+                { text: "While waiting, trace financials", action: 'p3_2_upi_start' }
+            ]
+        },
+        'p5_field_start_store': {
+            message: "Proceed to the store, collect physical documents, enquire with the staff, and collect any available CCTV footage. This is a physical lead.",
+            options: [
+                { text: "Proceed to Field Investigation", action: 'p5_field_start' }
+            ]
+        },
+        // --- 4. Digital Trace ---
+        'p4_digital_start_mobile': {
+            message: "<strong>Phase 4: Digital Communications Trace</strong><br>You have a suspect mobile number. The next step is to send a notice to the Mobile Service Provider (MSP) for the <strong>Subscriber Detail Record (SDR/CAF)</strong> and <strong>Call Detail Record (CDR)</strong>. Have you done this?",
+            options: [
+                { text: "Yes, Notice Sent", action: 'p4_digital_await_records' },
+                { text: "No, Not Yet", action: 'p4_digital_action_notice' }
+            ]
+        },
+        'p4_digital_action_notice': {
+            message: "<strong>Action Required:</strong> Send the notice to the concerned MSP's nodal officer to get the SDR and CDR.",
+            options: [
+                { text: "Back", action: 'p4_digital_start_mobile' }
+            ]
+        },
+        'p4_digital_await_records': {
+            message: "Excellent. Once you receive the records, what will you analyze?",
+            options: [
+                { text: "Analyze SDR/CAF (Subscriber Address)", action: 'p5_field_start' },
+                { text: "Analyze CDR (Call Logs/Location)", action: 'p4_digital_analyze_cdr' }
+            ]
+        },
+        'p4_digital_analyze_cdr': {
+            message: "Key points to check in CDR:<br>🧩 <strong>Frequently contacted numbers</strong> to identify associates.<br>🧩 <strong>Tower location data (BTS Address)</strong> during the time of the crime.<br>🧩 <strong>IMEI number</strong> of the handset.",
+            options: [
+                { text: "Understood", action: 'p5_field_start' }
+            ]
+        },
+        'p4_digital_start_ip': {
+            message: "<strong>Phase 4: IP Trace</strong><br>You have an IP address. Have you performed a <strong>whois lookup</strong> to identify the Internet Service Provider (ISP)?",
+            options: [
+                { text: "Yes, ISP Identified", action: 'p4_digital_ip_notice' },
+                { text: "No, Not Yet", action: 'p4_digital_ip_action_whois' }
+            ]
+        },
+        'p4_digital_ip_action_whois': {
+            message: "<strong>Action Required:</strong> Please perform a whois lookup (e.g., at <code>www.who.is</code>). This is a mandatory first step to know which ISP to contact.",
+            options: [
+                { text: "Back", action: 'p4_digital_start_ip' }
+            ]
+        },
+        'p4_digital_ip_notice': {
+            message: "Have you sent a notice u/s 91 CrPC to the ISP with the IP address, date, and exact time (converted to IST) to get the IP user details (IPDR)?",
+            options: [
+                { text: "Yes, Notice Sent", action: 'p4_digital_ip_await' },
+                { text: "No, Not Yet", action: 'p4_digital_ip_action_notice' }
+            ]
+        },
+        'p4_digital_ip_action_notice': {
+            message: "<strong>Action Required:</strong> Send the notice immediately. Remember to convert any UTC timestamps to IST before sending.",
+            options: [
+                { text: "Back", action: 'p4_digital_ip_notice' }
+            ]
+        },
+        'p4_digital_ip_await': {
+            message: "✅ Good. The ISP's reply will provide the subscriber's name and physical installation address.",
+            options: [
+                { text: "Proceed to Field Investigation", action: 'p5_field_start' }
+            ]
+        },
+        // --- 5. Field Investigation ---
+        'p5_field_start': {
+            message: "<strong>Phase 5: Field Investigation</strong><br>You have one or more physical addresses (from bank KYC, MSP records, IP records, or delivery address). Have you conducted a physical verification of these addresses?",
+            options: [
+                { text: "Yes, Verified", action: 'p5_field_arrest' },
+                { text: "Verification Pending", action: 'p5_field_action_verify' }
+            ]
+        },
+        'p5_field_action_verify': {
+            message: "<strong>Action Required:</strong> Please conduct field enquiries to verify the addresses. Leads are unconfirmed until physically verified.",
+            options: [
+                { text: "Back", action: 'p5_field_start' }
+            ]
+        },
+        'p5_field_arrest': {
+            message: "After successful verification and positive identification of the accused, have you proceeded with the arrest?",
+            options: [
+                { text: "Yes, Accused Arrested", action: 'p5_field_seize' }
+            ]
+        },
+        'p5_field_seize': {
+            message: "Upon arrest, have you seized the communication devices (mobile phones, laptops, SIM cards) used in the offense?",
+            options: [
+                { text: "Yes, Devices Seized", action: 'p5_field_preserve' },
+                { text: "No", action: 'p5_field_seize' }
+            ]
+        },
+        'p5_field_preserve': {
+            message: "<strong>FORENSIC ALERT:</strong> Is the evidence secured as per procedure?<br>📱 <strong>Mobile (ON):</strong> Enable Airplane Mode or place in Faraday bag.<br>💻 <strong>PC (ON):</strong> Pull power cord from back of CPU (do not shut down normally).",
+            options: [
+                { text: "Yes, Secured", action: 'p5_field_fsl' },
+                { text: "No", action: 'p5_field_action_preserve' }
+            ]
+        },
+        'p5_field_action_preserve': {
+            message: "<strong>CRITICAL MISTAKE:</strong> Improper handling can lead to evidence being inadmissible in court. Please follow the seizure protocol immediately.",
+            options: [
+                { text: "Back", action: 'p5_field_preserve' }
+            ]
+        },
+        'p5_field_fsl': {
+            message: "Have the seized items been properly labeled and sent for forensic examination with a forwarding letter?",
+            options: [
+                { text: "Yes, Sent to FSL", action: 'p6_complete' },
+                { text: "No", action: 'p5_field_fsl' }
+            ]
+        },
+        // --- 6. Culmination ---
+        'p6_complete': {
+            message: "<strong>Phase 6: Case Culmination</strong><br>Let's review the final checklist. Do you have:<br>1. FIR, Complaint, Mahazars (Observation, Seizure)<br>2. 161 Cr.P.C. witness statements<br>3. Replies from Banks, ISPs, MSPs with 65B certificates<br>4. FSL Report",
+            options: [
+                { text: "All Documents Available", action: 'p6_final' }
+            ]
+        },
+        'p6_final': {
+            message: "<strong>Investigation Complete.</strong> You have followed all the critical steps. Compile all documents in the case diary and file the Final Report (Charge Sheet) before the jurisdictional court. Excellent work, Officer.",
+            options: [
+                { text: "Start New Investigation", action: 'start_new' }
+            ]
+        }
+    };
     // --- *** END OF FLOW OBJECTS *** ---
 
 
@@ -2166,5 +2662,88 @@ The details should include the user's name, registered installation address, and
             }
         });
     }
+/**
+     * --- NEW: Starts the interactive flow for Online Financial Fraud ---
+     */
+    function startOnlineFinancialFraudFlow() {
+        sopDisplay.innerHTML = ''; 
+        const flowContainer = document.createElement('div');
+        flowContainer.id = 'interactive-flow-container';
+        flowContainer.className = 'sop-card interactive-flow'; 
+        sopDisplay.appendChild(flowContainer);
+        renderOnlineFinancialFraudStep('start'); // Calls the new render function
+    }
 
+    /**
+     * --- NEW: Renders a step for Online Financial Fraud ---
+     */
+    function renderOnlineFinancialFraudStep(stepKey) {
+        const flowContainer = document.getElementById('interactive-flow-container');
+        if (!flowContainer) {
+            console.error("Flow container not found. Resetting flow.");
+            startOnlineFinancialFraudFlow();
+            return;
+        }
+
+        if (stepKey === 'start_new') {
+            searchInput.value = '';
+            sopDisplay.innerHTML = `
+            <div class="initial-text-container">
+                <img src="tn-police-logo.png" alt="TN Police Logo" class="logo-watermark">
+                <h2>Cyber Crime Command Center</h2>
+                <p>Enter a case type above to load the Standard Operating Procedure.</p>
+            </div>`;
+            return;
+        }
+
+        const allButtons = flowContainer.querySelectorAll('.interactive-step .sop-button:not(:disabled)');
+        allButtons.forEach(button => {
+            if (!button.classList.contains('download-button')) {
+                button.disabled = true;
+            }
+        });
+
+        // *** Uses onlineFinancialFraudFlow object ***
+        const stepData = onlineFinancialFraudFlow[stepKey]; 
+        if (!stepData) {
+            console.error("Invalid stepKey:", stepKey);
+            flowContainer.innerHTML += `<div class="interactive-step"><p>Error: Investigation step not found. Please try again.</p></div>`;
+            return;
+        }
+
+        let optionsHtml = '<div class="sop-options-container">';
+        if (stepData.options) {
+            stepData.options.forEach(option => {
+                optionsHtml += `<button class="sop-button" data-action-key="${option.action}">${option.text}</button>`;
+            });
+        }
+        optionsHtml += '</div>';
+
+        const stepElement = document.createElement('div');
+        stepElement.className = 'interactive-step';
+        stepElement.innerHTML = `
+            <div class="chatbot-message">${stepData.message}</div>
+            ${optionsHtml}
+        `;
+        
+        if (stepKey !== 'start') {
+            const separator = document.createElement('hr');
+            separator.className = 'step-separator';
+            flowContainer.appendChild(separator);
+        }
+
+        flowContainer.appendChild(stepElement);
+        flowContainer.scrollTop = flowContainer.scrollHeight;
+        
+        stepElement.querySelectorAll('.sop-button').forEach(button => {
+            if (!button.classList.contains('download-button')) {
+                button.addEventListener('click', (e) => {
+                    const nextStepKey = e.target.dataset.actionKey;
+                    if (nextStepKey) {
+                        renderOnlineFinancialFraudStep(nextStepKey); // Recursive call to its own render function
+                    }
+                });
+            }
+        });
+    }
 });
