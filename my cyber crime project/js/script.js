@@ -35,6 +35,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // *** NEW: Show suggestions as user types ***
     searchInput.addEventListener('input', showSuggestions);
+    
+    // *** NEW: Show all suggestions on click/focus ***
+    searchInput.addEventListener('focus', showSuggestions);
 
     // *** NEW: Handle clicking on a suggestion item ***
     sopSuggestions.addEventListener('click', selectSuggestion);
@@ -75,22 +78,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // *** NEW: Filters and displays the suggestion box ***
+    // *** MODIFIED: Filters and displays the suggestion box ***
     function showSuggestions() {
         const query = searchInput.value.toLowerCase();
         sopSuggestions.innerHTML = ''; // Clear old suggestions
         
+        let titlesToShow = [];
+
         if (query.length === 0) {
-            sopSuggestions.style.display = 'none';
-            return;
+            // If query is empty (on focus), show all titles
+            titlesToShow = sopTitles;
+        } else {
+            // If query is not empty (on input), filter titles
+            titlesToShow = sopTitles.filter(title => 
+                title.toLowerCase().includes(query)
+            );
         }
         
-        const filteredTitles = sopTitles.filter(title => 
-            title.toLowerCase().includes(query)
-        );
-        
-        if (filteredTitles.length > 0) {
-            filteredTitles.forEach(title => {
+        if (titlesToShow.length > 0) {
+            titlesToShow.forEach(title => {
                 const item = document.createElement('div');
                 item.className = 'suggestion-item';
                 item.textContent = title;
@@ -98,6 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             sopSuggestions.style.display = 'block';
         } else {
+            // Hide only if no titles match the filter
             sopSuggestions.style.display = 'none';
         }
     }
@@ -2373,6 +2380,12 @@ You are directed under Sec 91 Cr.P.C. to provide:
         }
 
         let optionsHtml = '<div class="sop-options-container">';
+        
+        // ADD THIS IF-BLOCK TO INSERT THE BACK BUTTON
+        if (stepKey !== 'start') {
+            optionsHtml += `<button class="sop-button back-button">Back</button>`;
+        }
+        
         if (stepData.options) {
             stepData.options.forEach(option => {
                 optionsHtml += `<button class="sop-button" data-action-key="${option.action}">${option.text}</button>`;
@@ -2397,11 +2410,44 @@ You are directed under Sec 91 Cr.P.C. to provide:
         flowContainer.scrollTop = flowContainer.scrollHeight;
         
         stepElement.querySelectorAll('.sop-button').forEach(button => {
-            if (!button.classList.contains('download-button')) {
+        
+            if (button.classList.contains('back-button')) {
+                // --- ADD THIS LOGIC FOR THE BACK BUTTON ---
+                button.addEventListener('click', (e) => {
+                    const flowContainer = document.getElementById('interactive-flow-container');
+                    const currentStepElement = e.target.closest('.interactive-step');
+                    
+                    if (currentStepElement) {
+                        const prevSeparator = currentStepElement.previousElementSibling;
+                        
+                        if (prevSeparator && prevSeparator.classList.contains('step-separator')) {
+                            const prevStepElement = prevSeparator.previousElementSibling;
+                            // Re-enable buttons on the previous step
+                            if (prevStepElement) {
+                                prevStepElement.querySelectorAll('.sop-button').forEach(btn => {
+                                    btn.disabled = false;
+                                });
+                            }
+                            // Remove the separator
+                            prevSeparator.remove();
+                        }
+                        
+                        // Remove the current step element
+                        currentStepElement.remove();
+                        // Scroll to the new last step
+                        if (flowContainer) {
+                            flowContainer.scrollTop = flowContainer.scrollHeight;
+                        }
+                    }
+                });
+
+            } else if (!button.classList.contains('download-button')) {
+                // --- THIS IS YOUR EXISTING LOGIC FOR OPTION BUTTONS ---
                 button.addEventListener('click', (e) => {
                     const nextStepKey = e.target.dataset.actionKey;
                     if (nextStepKey) {
-                        renderInvestmentFraudStep(nextStepKey);
+                        // This line must match the function you are editing, e.g.:
+                        renderInvestmentFraudStep(nextStepKey); // or renderUpiFraudStep(nextStepKey), etc.
                     }
                 });
             }
@@ -2458,6 +2504,12 @@ You are directed under Sec 91 Cr.P.C. to provide:
         }
 
         let optionsHtml = '<div class="sop-options-container">';
+        
+        // ADD THIS IF-BLOCK TO INSERT THE BACK BUTTON
+        if (stepKey !== 'start') {
+            optionsHtml += `<button class="sop-button back-button">Back</button>`;
+        }
+        
         if (stepData.options) {
             stepData.options.forEach(option => {
                 optionsHtml += `<button class="sop-button" data-action-key="${option.action}">${option.text}</button>`;
@@ -2481,8 +2533,39 @@ You are directed under Sec 91 Cr.P.C. to provide:
         flowContainer.appendChild(stepElement);
         flowContainer.scrollTop = flowContainer.scrollHeight;
         
-        stepElement.querySelectorAll('.sop-button').forEach(button => {
-            if (!button.classList.contains('download-button')) {
+stepElement.querySelectorAll('.sop-button').forEach(button => {
+        
+            if (button.classList.contains('back-button')) {
+                // --- ADD THIS LOGIC FOR THE BACK BUTTON ---
+                button.addEventListener('click', (e) => {
+                    const flowContainer = document.getElementById('interactive-flow-container');
+                    const currentStepElement = e.target.closest('.interactive-step');
+                    
+                    if (currentStepElement) {
+                        const prevSeparator = currentStepElement.previousElementSibling;
+                        
+                        if (prevSeparator && prevSeparator.classList.contains('step-separator')) {
+                            const prevStepElement = prevSeparator.previousElementSibling;
+                            // Re-enable buttons on the previous step
+                            if (prevStepElement) {
+                                prevStepElement.querySelectorAll('.sop-button').forEach(btn => {
+                                    btn.disabled = false;
+                                });
+                            }
+                            // Remove the separator
+                            prevSeparator.remove();
+                        }
+                        
+                        // Remove the current step element
+                        currentStepElement.remove();
+                        // Scroll to the new last step
+                        if (flowContainer) {
+                            flowContainer.scrollTop = flowContainer.scrollHeight;
+                        }
+                    }
+                });
+
+            } else if (!button.classList.contains('download-button')) {
                 button.addEventListener('click', (e) => {
                     const nextStepKey = e.target.dataset.actionKey;
                     if (nextStepKey) {
@@ -2543,13 +2626,18 @@ You are directed under Sec 91 Cr.P.C. to provide:
         }
 
         let optionsHtml = '<div class="sop-options-container">';
+        
+        // ADD THIS IF-BLOCK TO INSERT THE BACK BUTTON
+        if (stepKey !== 'start') {
+            optionsHtml += `<button class="sop-button back-button">Back</button>`;
+        }
+        
         if (stepData.options) {
             stepData.options.forEach(option => {
                 optionsHtml += `<button class="sop-button" data-action-key="${option.action}">${option.text}</button>`;
             });
         }
         optionsHtml += '</div>';
-
         const stepElement = document.createElement('div');
         stepElement.className = 'interactive-step';
         stepElement.innerHTML = `
@@ -2566,8 +2654,39 @@ You are directed under Sec 91 Cr.P.C. to provide:
         flowContainer.appendChild(stepElement);
         flowContainer.scrollTop = flowContainer.scrollHeight;
         
-        stepElement.querySelectorAll('.sop-button').forEach(button => {
-            if (!button.classList.contains('download-button')) {
+stepElement.querySelectorAll('.sop-button').forEach(button => {
+        
+            if (button.classList.contains('back-button')) {
+                // --- ADD THIS LOGIC FOR THE BACK BUTTON ---
+                button.addEventListener('click', (e) => {
+                    const flowContainer = document.getElementById('interactive-flow-container');
+                    const currentStepElement = e.target.closest('.interactive-step');
+                    
+                    if (currentStepElement) {
+                        const prevSeparator = currentStepElement.previousElementSibling;
+                        
+                        if (prevSeparator && prevSeparator.classList.contains('step-separator')) {
+                            const prevStepElement = prevSeparator.previousElementSibling;
+                            // Re-enable buttons on the previous step
+                            if (prevStepElement) {
+                                prevStepElement.querySelectorAll('.sop-button').forEach(btn => {
+                                    btn.disabled = false;
+                                });
+                            }
+                            // Remove the separator
+                            prevSeparator.remove();
+                        }
+                        
+                        // Remove the current step element
+                        currentStepElement.remove();
+                        // Scroll to the new last step
+                        if (flowContainer) {
+                            flowContainer.scrollTop = flowContainer.scrollHeight;
+                        }
+                    }
+                });
+
+            } else if (!button.classList.contains('download-button')) {
                 button.addEventListener('click', (e) => {
                     const nextStepKey = e.target.dataset.actionKey;
                     if (nextStepKey) {
@@ -2628,6 +2747,12 @@ You are directed under Sec 91 Cr.P.C. to provide:
         }
 
         let optionsHtml = '<div class="sop-options-container">';
+        
+        // ADD THIS IF-BLOCK TO INSERT THE BACK BUTTON
+        if (stepKey !== 'start') {
+            optionsHtml += `<button class="sop-button back-button">Back</button>`;
+        }
+        
         if (stepData.options) {
             stepData.options.forEach(option => {
                 optionsHtml += `<button class="sop-button" data-action-key="${option.action}">${option.text}</button>`;
@@ -2651,8 +2776,39 @@ You are directed under Sec 91 Cr.P.C. to provide:
         flowContainer.appendChild(stepElement);
         flowContainer.scrollTop = flowContainer.scrollHeight;
         
-        stepElement.querySelectorAll('.sop-button').forEach(button => {
-            if (!button.classList.contains('download-button')) {
+stepElement.querySelectorAll('.sop-button').forEach(button => {
+        
+            if (button.classList.contains('back-button')) {
+                // --- ADD THIS LOGIC FOR THE BACK BUTTON ---
+                button.addEventListener('click', (e) => {
+                    const flowContainer = document.getElementById('interactive-flow-container');
+                    const currentStepElement = e.target.closest('.interactive-step');
+                    
+                    if (currentStepElement) {
+                        const prevSeparator = currentStepElement.previousElementSibling;
+                        
+                        if (prevSeparator && prevSeparator.classList.contains('step-separator')) {
+                            const prevStepElement = prevSeparator.previousElementSibling;
+                            // Re-enable buttons on the previous step
+                            if (prevStepElement) {
+                                prevStepElement.querySelectorAll('.sop-button').forEach(btn => {
+                                    btn.disabled = false;
+                                });
+                            }
+                            // Remove the separator
+                            prevSeparator.remove();
+                        }
+                        
+                        // Remove the current step element
+                        currentStepElement.remove();
+                        // Scroll to the new last step
+                        if (flowContainer) {
+                            flowContainer.scrollTop = flowContainer.scrollHeight;
+                        }
+                    }
+                });
+
+            } else if (!button.classList.contains('download-button')) {
                 button.addEventListener('click', (e) => {
                     const nextStepKey = e.target.dataset.actionKey;
                     if (nextStepKey) {
@@ -2712,6 +2868,12 @@ You are directed under Sec 91 Cr.P.C. to provide:
         }
 
         let optionsHtml = '<div class="sop-options-container">';
+        
+        // ADD THIS IF-BLOCK TO INSERT THE BACK BUTTON
+        if (stepKey !== 'start') {
+            optionsHtml += `<button class="sop-button back-button">Back</button>`;
+        }
+        
         if (stepData.options) {
             stepData.options.forEach(option => {
                 optionsHtml += `<button class="sop-button" data-action-key="${option.action}">${option.text}</button>`;
@@ -2735,8 +2897,39 @@ You are directed under Sec 91 Cr.P.C. to provide:
         flowContainer.appendChild(stepElement);
         flowContainer.scrollTop = flowContainer.scrollHeight;
         
-        stepElement.querySelectorAll('.sop-button').forEach(button => {
-            if (!button.classList.contains('download-button')) {
+stepElement.querySelectorAll('.sop-button').forEach(button => {
+        
+            if (button.classList.contains('back-button')) {
+                // --- ADD THIS LOGIC FOR THE BACK BUTTON ---
+                button.addEventListener('click', (e) => {
+                    const flowContainer = document.getElementById('interactive-flow-container');
+                    const currentStepElement = e.target.closest('.interactive-step');
+                    
+                    if (currentStepElement) {
+                        const prevSeparator = currentStepElement.previousElementSibling;
+                        
+                        if (prevSeparator && prevSeparator.classList.contains('step-separator')) {
+                            const prevStepElement = prevSeparator.previousElementSibling;
+                            // Re-enable buttons on the previous step
+                            if (prevStepElement) {
+                                prevStepElement.querySelectorAll('.sop-button').forEach(btn => {
+                                    btn.disabled = false;
+                                });
+                            }
+                            // Remove the separator
+                            prevSeparator.remove();
+                        }
+                        
+                        // Remove the current step element
+                        currentStepElement.remove();
+                        // Scroll to the new last step
+                        if (flowContainer) {
+                            flowContainer.scrollTop = flowContainer.scrollHeight;
+                        }
+                    }
+                });
+
+            } else if (!button.classList.contains('download-button')) {
                 button.addEventListener('click', (e) => {
                     const nextStepKey = e.target.dataset.actionKey;
                     if (nextStepKey) {
