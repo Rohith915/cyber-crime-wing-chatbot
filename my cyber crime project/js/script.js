@@ -171,6 +171,9 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (crimeKey === "social media impersonation") { // *** NEWLY ADDED ***
                 startSocialMediaImpersonationFlow(); 
                 updateHistory(crimeKey, sopData[crimeKey].title);
+            } else if (crimeKey === "digital arrest") { // *** NEWLY ADDED ***
+                startDigitalArrestFlow(); 
+                updateHistory(crimeKey, sopData[crimeKey].title);
             } else {
                 // Original functionality for any remaining standard SOPs
                 currentCrime = sopData[crimeKey];
@@ -2819,7 +2822,7 @@ stepElement.querySelectorAll('.sop-button').forEach(button => {
         
         if (stepData.options) {
             stepData.options.forEach(option => {
-                optionsHtml += `<button class_name="sop-button" data-action-key="${option.action}">${option.text}</button>`;
+                optionsHtml += `<button class="sop-button" data-action-key="${option.action}">${option.text}</button>`;
             });
         }
         optionsHtml += '</div>';
@@ -3644,6 +3647,7 @@ You are also requested under Sec 79(3)(b) of the IT Act to <strong>IMMEDIATELY</
             }
         });
     }
+    
 
     /**
      * --- NEW: Starts the interactive flow for SIM Swap Fraud ---
@@ -3874,4 +3878,404 @@ You are also requested under Sec 79(3)(b) of the IT Act to <strong>IMMEDIATELY</
             }
         });
     }
+
+// --- *** NEW: Digital Arrest Interactive Flow *** ---
+    const digitalArrestFlow = {
+        'start': {
+            message: "Welcome, Officer. This is the Digital Arrest Investigation Assistant. This is a high-priority extortion case often involving impersonation of police/government officials. Have you received a detailed written complaint?",
+            options: [
+                { text: "Yes", action: 'p1_checklist_1' },
+                { text: "No", action: 'p1_action_complaint' }
+            ]
+        },
+        'p1_action_complaint': {
+            message: "<strong>Action Required:</strong> Please obtain a formal written complaint from the victim. This is the legal foundation for the investigation.",
+            options: [
+                { text: "Back", action: 'start' }
+            ]
+        },
+        'p1_checklist_1': {
+            message: "Great. Let's confirm the preliminary evidence.<br><br><strong>Evidence Checklist 1/4:</strong><br>The victim's <strong>bank account statement</strong> showing the fraudulent transactions (if any money was transferred)?",
+            options: [
+                { text: "Collected", action: 'p1_checklist_2' },
+                { text: "Not Yet", action: 'p1_action_checklist_1' },
+                { text: "No Money Transferred", action: 'p1_checklist_2' },
+                { text: "Fund Trial Analysis First", action: 'p2_financial' }
+            ]
+        },
+        'p1_action_checklist_1': {
+            message: "<strong>Action Required:</strong> Please obtain the bank statement if money was transferred. It's the primary proof of extortion.",
+            options: [
+                { text: "Back", action: 'p1_checklist_1' },
+                { text: "Fund Trial Analysis First", action: 'p2_financial' }
+            ]
+        },
+        'p1_checklist_2': {
+            message: "✅ Bank Statement status noted.<br><br><strong>Evidence Checklist 2/4:</strong><br>The <strong>fraudulent mobile number(s)</strong> or VoIP identifiers that contacted the victim?",
+            options: [
+                { text: "Collected", action: 'p1_checklist_3' },
+                { text: "Not Yet / Not Available", action: 'p1_checklist_3' }
+            ]
+        },
+        'p1_checklist_3': {
+            message: "✅ Contact identifiers noted.<br><br><strong>Evidence Checklist 3/4:</strong><br><strong>Screenshots or recordings of the video call</strong> (e.g., Skype, WhatsApp, Telegram) showing the impersonators, their fake IDs, usernames, or any threats made?",
+            options: [
+                { text: "Collected", action: 'p1_checklist_4' },
+                { text: "Not Yet / Not Available", action: 'p1_checklist_4' }
+            ]
+        },
+        'p1_checklist_4': {
+            message: "✅ Call evidence status noted.<br><br><strong>Evidence Checklist 4/4:</strong><br>Any <strong>fake documents</strong> (arrest warrants, legal notices, courier receipts like FedEx) sent to the victim via email or chat?",
+            options: [
+                { text: "Collected", action: 'p1_fir_check' },
+                { text: "Not Yet / Not Available", action: 'p1_fir_check' }
+            ]
+        },
+        'p1_fir_check': {
+            message: "All preliminary evidence is documented. Have you registered the FIR?<br>⚖️ <strong>Recommended sections:</strong><ul><li><strong>IPC:</strong> Sec 384 (Extortion), 419 (Cheating by personation), 420 (Cheating), 170 (Personating a public servant), 120B (Criminal Conspiracy).</li><li><strong>IT Act:</strong> Sec 66C (Identity Theft), Sec 66D (Cheating by personation).</li></ul>",
+            options: [
+                { text: "Yes, FIR Registered", action: 'p2_menu' },
+                { text: "No, Not Yet", action: 'p1_action_fir' }
+            ]
+        },
+        'p1_action_fir': {
+            message: "<strong>Action Required:</strong> Please register the FIR immediately. This is a serious cognizable offense, and notices need to be sent urgently.",
+            options: [
+                { text: "Back", action: 'p1_fir_check' }
+            ]
+        },
+        'p2_menu': {
+            message: "With the FIR registered, we must pursue parallel trails urgently. Which do you want to start with?",
+            options: [
+                { text: "💰 Trace the Money (Fund Trial)", action: 'p2_financial' },
+                { text: "🕵️‍♂️ Trace the Callers/Impersonators (Digital Trial)", action: 'p2_digital' }
+            ]
+        },
+
+        // --- Financial Trail ---
+        'p2_financial': {
+            message: "<strong>Fund Trial Analysis</strong><br>How was the victim forced or instructed to send the money? (Select the primary method if applicable)",
+            options: [
+                { text: "Bank Transfer (NEFT/IMPS/RTGS)", action: 'p2_financial_bank' },
+                { text: "Cryptocurrency (Bitcoin, Tether/USDT)", action: 'p2_financial_crypto' },
+                { text: "No money was successfully transferred", action: 'p2_digital' }
+            ]
+        },
+        'p2_financial_bank': {
+            message: "<strong>URGENT ACTION: Bank Transfer Trail</strong><br>Have you identified the beneficiary 'mule' bank accounts from the victim's statement and sent notices under Sec 91 CrPC to the respective banks?",
+            options: [
+                { text: "Yes, Notices Sent to Freeze & Get KYC", action: 'p2_financial_bank_sent' },
+                { text: "No, Need Sample Notice", action: 'p2_financial_bank_sample' }
+            ]
+        },
+        'p2_financial_bank_sample': {
+            message: `Use the standard 'Freeze and KYC' notice immediately. This is extremely time-sensitive.
+            📄 Refer to specimen notice Annexure VI(A) in Part IV PDF. Request:
+            <ul><li>Immediate Debit Freeze.</li><li>Account Opening Form (AOF) with photo.</li><li>Complete KYC documents (ID, Address proof).</li><li>Full Account Statement from opening date.</li></ul>`,
+            options: [
+                { text: "Understood, Notices Sent", action: 'p2_financial_bank_sent' },
+                { text: "Back", action: 'p2_financial' }
+            ]
+        },
+        'p2_financial_bank_sent': {
+            message: "✅ Excellent, freezing the accounts is critical. While awaiting the bank's reply (KYC docs, statement), let's pursue the digital trail.",
+            options: [
+                { text: "Proceed to Digital Trail", action: 'p2_digital' },
+                { text: "Wait for Bank Reply (Analyze Statement)", action: 'p3_analyze_mule' }
+            ]
+        },
+        'p2_financial_crypto': {
+            message: "<strong>Crypto Trail</strong><br>Tracing crypto is complex. Have you obtained the following from the victim?<br>1. The fraudster's <strong>Wallet Address</strong>.<br>2. The <strong>Transaction Hash (TxID)</strong>.<br>3. The name of the <strong>Exchange Platform</strong> used by the victim (if any)?",
+            options: [
+                { text: "Yes, I have these details", action: 'p2_financial_crypto_notice' },
+                { text: "No, need to collect these details", action: 'p2_financial_crypto_help' }
+            ]
+        },
+        'p2_financial_crypto_help': {
+            message: "<strong>Action Required:</strong> Instruct the victim to log into their crypto exchange account and provide screenshots or details of the transaction, specifically the destination wallet address and the transaction hash (TxID).",
+            options: [
+                { text: "Back", action: 'p2_financial_crypto' }
+            ]
+        },
+        'p2_financial_crypto_notice': {
+            message: "<strong>URGENT ACTION:</strong> Send a notice under Sec 91 CrPC to the Nodal Officer of the Crypto Exchange (e.g., WazirX, CoinDCX, Binance, etc.) involved, providing the Transaction Hash (TxID) and suspect wallet address. Request:<ul><li>Attempt to <strong>freeze</strong> the destination wallet (if possible and hosted on their platform).</li><li>Request <strong>KYC details</strong> of the wallet owner (if available).</li><li>Request the full <strong>transaction history</strong> of the suspect wallet.</li></ul>",
+            options: [
+                { text: "Notice Sent", action: 'p2_financial_crypto_sent' },
+                { text: "Back", action: 'p2_financial_crypto' }
+            ]
+        },
+        'p2_financial_crypto_sent': {
+             message: "✅ Crypto exchange notified. Recovery is difficult, but KYC is a potential lead. Let's pursue the digital trail of the callers.",
+             options: [
+                 { text: "Proceed to Digital Trail", action: 'p2_digital' }
+             ]
+        },
+        'p3_analyze_mule': {
+            message: "You have received the mule account statement from the bank. Analyze the statement for subsequent transactions. What did you find?",
+            options: [
+                { text: "Further Transfer to Another Bank Account", action: 'p3_mule_layer2' },
+                { text: "Cash Withdrawal from ATM", action: 'p3_mule_atm' },
+                { text: "Purchase / Online Transaction", action: 'p3_mule_purchase' },
+                { text: "Trail ends here / Funds still in account", action: 'p2_digital' }
+            ]
+        },
+        'p3_mule_layer2': {
+            message: "<strong>New Lead: Layer 2 Mule Account(s)</strong><br>Immediately repeat the process: Send notices to the new beneficiary banks to <strong>freeze the accounts</strong> and request their KYC and full statements.",
+            options: [
+                { text: "Understood, will send new notices", action: 'p3_analyze_mule' }
+            ]
+        },
+        'p3_mule_atm': {
+            message: "<strong>New Lead: ATM Withdrawal</strong><br>This provides a chance for physical identification. Note the ATM ID, location, date, and time from the statement. Send an urgent notice to the bank that owns the ATM requesting:<ul><li><strong>CCTV footage</strong> from all cameras (lobby, machine, entrance) for the relevant time period.</li><li>Pin-hole camera images.</li><li>Electronic Journal (EJ) Log.</li></ul>",
+            options: [
+                { text: "Understood, notice sent for CCTV", action: 'p3_analyze_mule' }
+            ]
+        },
+         'p3_mule_purchase': {
+             message: "<strong>New Lead: Online/Merchant Transaction</strong><br>Identify the merchant (e.g., E-commerce, Travel booking). Send notice requesting:<ul><li>Product/Service details.</li><li>Delivery Address (if applicable).</li><li>Registered user account details (Mobile, Email).</li><li>IP address used for the transaction.</li></ul>",
+            options: [
+                { text: "Understood, notice sent to Merchant", action: 'p3_analyze_mule' }
+            ]
+        },
+
+        // --- Digital Trail ---
+        'p2_digital': {
+            message: "<strong>Digital Footprint Investigation</strong><br>What is the primary digital communication channel used by the impersonators?",
+            options: [
+                { text: "Video Call (Skype, WhatsApp, Telegram etc.)", action: 'p2_digital_video' },
+                { text: "Phone Number (Likely VoIP/International)", action: 'p2_digital_number' },
+                { text: "Email (Used for Fake Documents/Communication)", action: 'p2_digital_email' }
+            ]
+        },
+        'p2_digital_video': {
+            message: "You have the fraudster's User ID/Username/Number for the video call platform (e.g., Skype, WhatsApp). Have you sent a notice under Sec 91 CrPC to the respective platform?",
+            options: [
+                { text: "Yes, Notice Sent", action: 'p2_digital_video_sent' },
+                { text: "No, Need Sample Guidance", action: 'p2_digital_video_sample' }
+            ]
+        },
+        'p2_digital_video_sample': {
+            message: `Use the standard notices for social media/communication platforms. Key requests:
+            <ul><li>Basic subscriber details (Name, registration email, phone number).</li><li>Account creation IP address and timestamp.</li><li>IP logs for login/activity during the period of the crime (Specify date/time in UTC).</li></ul>
+            ➡️ Refer to SOPs for Facebook/Instagram/Twitter, WhatsApp, Google/Youtube in Part IV PDF for platform-specific details and portals/addresses.`,
+            options: [
+                { text: "Understood, Notice Sent", action: 'p2_digital_video_sent' },
+                { text: "Back to Digital Trail Menu", action: 'p2_digital' }
+            ]
+        },
+        'p2_digital_video_sent': {
+            message: "✅ Platform notified. IP logs are crucial for tracing the origin. While waiting, pursue other leads.",
+            options: [
+                { text: "Trace Phone Number (if available)", action: 'p2_digital_number' },
+                { text: "Trace Email (if available)", action: 'p2_digital_email' },
+                { text: "Wait for Platform Reply (IP Logs)", action: 'p3_ip_trace' }
+            ]
+        },
+        'p2_digital_number': {
+            message: "<strong>Trace Phone Number (VoIP Investigation)</strong><br>You have the number that called the victim (e.g., +1xxxx, unknown). First, send a notice for the CDR of the *victim's* number to their Mobile Service Provider (MSP). Have you done this?",
+            options: [
+                { text: "Yes, Victim's CDR requested", action: 'p2_digital_number_analyze' },
+                { text: "No, Need to request Victim's CDR", action: 'p2_digital_number_action' }
+            ]
+        },
+         'p2_digital_number_action': {
+            message: "<strong>Action Required:</strong> Send notice to the victim's MSP (Airtel, Jio, etc.) requesting the CDR for their number covering the time of the fraudulent call. Ask specifically for the 'Incoming Trunk Gateway (TG)' details for that call.",
+            options: [
+                { text: "Notice Sent", action: 'p2_digital_number_analyze' },
+                { text: "Back", action: 'p2_digital' }
+            ]
+        },
+        'p2_digital_number_analyze': {
+            message: "Once you receive the victim's CDR, identify the Incoming Trunk Gateway (TG) provider (e.g., Tata Communications, Airtel International Gateway) for the specific fraudulent call. Have you identified the TG provider?",
+            options: [
+                { text: "Yes, TG Provider Identified", action: 'p2_digital_number_tg_notice' },
+                { text: "No, Awaiting Victim's CDR", action: 'p2_digital_number_analyze' }
+            ]
+        },
+        'p2_digital_number_tg_notice': {
+             message: "Now, send a notice under Sec 91 CrPC to the identified Trunk Gateway provider. Request the details of the originating VoIP carrier/provider that routed the call through their gateway at that specific date and time.",
+            options: [
+                { text: "Yes, TG Provider Notified", action: 'p2_digital_number_carrier_notice' },
+                { text: "No, Need to Notify TG Provider", action: 'p2_digital_number_tg_notice' }
+            ]
+        },
+        'p2_digital_number_carrier_notice': {
+             message: "The TG provider should name the originating VoIP carrier (e.g., Skype, Vonage, a smaller provider). Send a final notice under Sec 91 CrPC to that specific VoIP carrier requesting:<ul><li>Subscriber details for the fraudulent number.</li><li>IP logs for call origination.</li></ul> This may require MLAT/LR if the carrier is foreign.",
+            options: [
+                { text: "Understood, VoIP Carrier Notified", action: 'p2_digital_number_sent' },
+                { text: "Back", action: 'p2_digital_number_analyze' }
+            ]
+        },
+        'p2_digital_number_sent': {
+            message: "✅ VoIP trace initiated. This is often complex and may require international cooperation (MLAT/LR). While pursuing this, check other leads.",
+            options: [
+                { text: "Trace Video Call Platform", action: 'p2_digital_video' },
+                { text: "Trace Email", action: 'p2_digital_email' },
+                { text: "Proceed to Field Investigation (if other leads exist)", action: 'p4_field' }
+            ]
+        },
+         'p2_digital_email': {
+             message: "<strong>Trace Email Address</strong><br>You have the email address used by the fraudsters (e.g., for sending fake documents). Have you sent a notice under Sec 91 CrPC to the Email Service Provider (ESP - e.g., Gmail, Outlook, Yahoo)?",
+            options: [
+                { text: "Yes, Notice Sent", action: 'p2_digital_email_sent' },
+                { text: "No, Need Sample Guidance", action: 'p2_digital_email_sample' }
+            ]
+        },
+         'p2_digital_email_sample': {
+            message: `Use the standard notice for Email Service Providers. Key requests:
+            <ul><li>Basic subscriber details (Name, recovery email, phone number).</li><li>Account creation IP address and timestamp.</li><li>IP logs for login/activity during the period of the crime (Specify date/time in UTC/IST).</li></ul>
+            ➡️ Refer to SOPs for Google/Yahoo/Microsoft in Part IV PDF for addresses and portals.`,
+            options: [
+                { text: "Understood, Notice Sent", action: 'p2_digital_email_sent' },
+                { text: "Back to Digital Trail Menu", action: 'p2_digital' }
+            ]
+        },
+        'p2_digital_email_sent': {
+            message: "✅ Email provider notified. Awaiting IP logs and subscriber details.",
+            options: [
+                { text: "Trace Video Call Platform", action: 'p2_digital_video' },
+                { text: "Trace Phone Number", action: 'p2_digital_number' },
+                { text: "Wait for ESP Reply (IP Logs)", action: 'p3_ip_trace' }
+            ]
+        },
+        'p3_ip_trace': {
+            message: "<strong>IP Address Trace</strong><br>You have received an IP address (from Video Call platform, Email provider, or potentially VoIP carrier). Have you used a Whois tool (e.g., <code>whois.domaintools.com</code>) to identify the Internet Service Provider (ISP)?",
+            options: [
+                { text: "Yes, ISP identified", action: 'p3_ip_notice' },
+                { text: "No, not yet", action: 'p3_ip_action' }
+            ]
+        },
+        'p3_ip_action': {
+            message: "<strong>Action Required:</strong> Use a Whois lookup tool to identify the owner (ISP) of the IP address. This is essential to request subscriber details.",
+            options: [
+                { text: "Back", action: 'p2_digital' }
+            ]
+        },
+        'p3_ip_notice': {
+            message: "Have you sent a notice under Sec 91 CrPC to the identified ISP requesting the Subscriber Detail Record (SDR) / IP User Details for that IP address at the specific date and time (remember to convert UTC to IST)?",
+            options: [
+                { text: "Yes, Notice Sent to ISP", action: 'p3_ip_sent' },
+                { text: "No, Need Sample ISP Notice", action: 'p3_ip_sample' }
+            ]
+        },
+        'p3_ip_sample': {
+            message: `Use the standard ISP notice template. Ensure you include:
+            <ul><li>IP Address.</li><li>Date.</li><li>Exact Time (in IST).</li><li>Port Number (if available).</li></ul>
+            Request the user's name, registered address, and linked mobile number (CAF/SDR details).`,
+            options: [
+                { text: "Got it, Notice Sent", action: 'p3_ip_sent' },
+                { text: "Back", action: 'p3_ip_notice' }
+            ]
+        },
+         'p3_ip_sent': {
+            message: "✅ ISP notified. Awaiting subscriber details (Name and Address). This is a strong lead for field verification.",
+            options: [
+                 { text: "Proceed to Field Investigation", action: 'p4_field' },
+                 { text: "Pursue Other Digital Leads", action: 'p2_digital'}
+            ]
+        },
+
+        // --- Field Investigation ---
+        'p4_field': {
+            message: "<strong>Field Investigation</strong><br>Consolidate all potential physical addresses obtained:<ul><li>From Mule Bank Account KYC documents.</li><li>From ISP records linked to IP addresses.</li><li>Any addresses from Crypto Exchange KYC (less common).</li></ul>Have you correlated these addresses and identified potential targets for verification?",
+            options: [
+                { text: "Yes, addresses identified/correlated", action: 'p4_field_verify' },
+                { text: "Leads point overseas / Addresses seem fake", action: 'p4_field_revisit' },
+                { text: "Awaiting Address Details", action: 'p4_field' }
+            ]
+        },
+        'p4_field_revisit': {
+            message: "This indicates a sophisticated operation, likely based outside the local jurisdiction or using fake documents. Focus on:<ul><li>Analyzing all layers of mule accounts for any local ATM withdrawals.</li><li>Pursuing MLAT/LR for foreign leads (VoIP, IP, Crypto).</li><li>Deep analysis of seized devices from any apprehended mules.</li></ul>",
+            options: [
+                { text: "Re-analyze Fund Trial", action: 'p2_financial' },
+                { text: "Focus on Digital Trail (MLAT/LR)", action: 'p2_digital' }
+            ]
+        },
+        'p4_field_verify': {
+            message: "Have you conducted physical verification (field enquiry) at the identified addresses to confirm the identity and presence of the suspects (likely money mules)?",
+            options: [
+                { text: "Yes, suspect(s) presence verified", action: 'p5_apprehend' },
+                { text: "Verification Pending / In Progress", action: 'p4_field_verify' }
+            ]
+        },
+        'p5_apprehend': {
+            message: "Based on the verification and accumulated evidence, have you apprehended the suspect(s) (money mules)?",
+            options: [
+                { text: "Yes, accused apprehended", action: 'p5_seize' },
+                { text: "Apprehension Pending", action: 'p5_apprehend' }
+            ]
+        },
+        'p5_seize': {
+            message: "<strong>Critical Step: Seizure</strong><br>Have you seized all relevant devices (mobiles, SIM cards, laptops, bank cards, documents) from the apprehended accused under a proper seizure mahazar?",
+            options: [
+                { text: "Yes, devices seized", action: 'p5_preserve' },
+                { text: "Seizure Pending", action: 'p5_seize' }
+            ]
+        },
+        'p5_preserve': {
+             message: "<strong>Evidence Preservation:</strong> Have you ensured all seized electronic devices are properly isolated to prevent data alteration?<ul><li>Mobiles: Airplane Mode or Faraday Bag/Tin Foil.</li><li>Laptops/PCs: Disconnect power from the back (do not shut down normally if ON).</li></ul>",
+            options: [
+                { text: "Yes, evidence preserved correctly", action: 'p5_fsl' },
+                { text: "Need to follow preservation steps", action: 'p5_preserve' }
+            ]
+        },
+        'p5_fsl': {
+            message: "Have the seized and preserved devices been forwarded to the Forensic Science Laboratory (FSL) for data extraction and analysis? Analysis of mules' devices is crucial to identify the masterminds.",
+            options: [
+                { text: "Yes, sent to FSL", action: 'p6_complete' },
+                { text: "No, FSL forwarding pending", action: 'p5_fsl' }
+            ]
+        },
+        'p6_complete': {
+            message: "<strong>Investigation Complete (Phase 1).</strong> You have successfully traced and apprehended the local money mules. Once the FSL report is received, compile all evidence (Bank replies, ISP replies, KYC docs, FSL report, Witness Statements, Mahazars) and file the final report (Charge Sheet) against the apprehended accused. The investigation continues to trace the main operators, possibly requiring MLAT/LR based on FSL findings and earlier digital leads.",
+            options: [
+                { text: "Start New Investigation", action: 'start_new' }
+            ]
+        }
+    };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+        
 });
