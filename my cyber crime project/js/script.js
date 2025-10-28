@@ -3879,6 +3879,120 @@ You are also requested under Sec 79(3)(b) of the IT Act to <strong>IMMEDIATELY</
         });
     }
 
+/**
+     * --- NEW: Starts the interactive flow for Digital Arrest ---
+     */
+    function startDigitalArrestFlow() {
+        sopDisplay.innerHTML = ''; 
+        const flowContainer = document.createElement('div');
+        flowContainer.id = 'interactive-flow-container';
+        flowContainer.className = 'sop-card interactive-flow'; 
+        sopDisplay.appendChild(flowContainer);
+        renderDigitalArrestStep('start'); // Calls the new render function
+    }
+
+    /**
+     * --- NEW: Renders a step for Digital Arrest ---
+     */
+    function renderDigitalArrestStep(stepKey) {
+        const flowContainer = document.getElementById('interactive-flow-container');
+        if (!flowContainer) {
+            console.error("Flow container not found. Resetting flow.");
+            startDigitalArrestFlow(); // Calls its own start function
+            return;
+        }
+
+        if (stepKey === 'start_new') {
+            searchInput.value = '';
+            sopDisplay.innerHTML = `
+            <div class="initial-text-container">
+                <img src="tn-police-logo.png" alt="TN Police Logo" class="logo-watermark">
+                <h2>Cyber Crime Command Center</h2>
+                <p>Enter a case type above to load the Standard Operating Procedure.</p>
+            </div>`;
+            return;
+        }
+
+        const allButtons = flowContainer.querySelectorAll('.interactive-step .sop-button:not(:disabled)');
+        allButtons.forEach(button => {
+            if (!button.classList.contains('download-button')) {
+                button.disabled = true;
+            }
+        });
+
+        // *** Uses digitalArrestFlow object ***
+        const stepData = digitalArrestFlow[stepKey]; 
+        if (!stepData) {
+            console.error("Invalid stepKey:", stepKey);
+            flowContainer.innerHTML += `<div class="interactive-step"><p>Error: Investigation step not found. Please try again.</p></div>`;
+            return;
+        }
+
+        let optionsHtml = '<div class="sop-options-container">';
+        
+        if (stepKey !== 'start') {
+            optionsHtml += `<button class="sop-button back-button">Back</button>`;
+        }
+        
+        if (stepData.options) {
+            stepData.options.forEach(option => {
+                optionsHtml += `<button class="sop-button" data-action-key="${option.action}">${option.text}</button>`;
+            });
+        }
+        optionsHtml += '</div>';
+
+        const stepElement = document.createElement('div');
+        stepElement.className = 'interactive-step';
+        stepElement.innerHTML = `
+            <div class="chatbot-message">${stepData.message}</div>
+            ${optionsHtml}
+        `;
+        
+        if (stepKey !== 'start') {
+            const separator = document.createElement('hr');
+            separator.className = 'step-separator';
+            flowContainer.appendChild(separator);
+        }
+
+        flowContainer.appendChild(stepElement);
+        flowContainer.scrollTop = flowContainer.scrollHeight;
+        
+        stepElement.querySelectorAll('.sop-button').forEach(button => {
+        
+            if (button.classList.contains('back-button')) {
+                button.addEventListener('click', (e) => {
+                    const flowContainer = document.getElementById('interactive-flow-container');
+                    const currentStepElement = e.target.closest('.interactive-step');
+                    
+                    if (currentStepElement) {
+                        const prevSeparator = currentStepElement.previousElementSibling;
+                        
+                        if (prevSeparator && prevSeparator.classList.contains('step-separator')) {
+                            const prevStepElement = prevSeparator.previousElementSibling;
+                            if (prevStepElement) {
+                                prevStepElement.querySelectorAll('.sop-button').forEach(btn => {
+                                    btn.disabled = false;
+                                });
+                            }
+                            prevSeparator.remove();
+                        }
+                        currentStepElement.remove();
+                        if (flowContainer) {
+                            flowContainer.scrollTop = flowContainer.scrollHeight;
+                        }
+                    }
+                });
+
+            } else if (!button.classList.contains('download-button')) {
+                button.addEventListener('click', (e) => {
+                    const nextStepKey = e.target.dataset.actionKey;
+                    if (nextStepKey) {
+                        renderDigitalArrestStep(nextStepKey); // Recursive call to its own render function
+                    }
+                });
+            }
+        });
+    }
 // --- *** NEW: Digital Arrest Interactive Flow *** ---
     const digitalArrestFlow = {
         'start': {
@@ -4234,48 +4348,4 @@ You are also requested under Sec 79(3)(b) of the IT Act to <strong>IMMEDIATELY</
         }
     };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-        
 });
