@@ -78,32 +78,16 @@ const sopData = {
 
   // --- Standard Investigative Protocols ---
 
+// --- Standard Investigative Protocols (NOW INTERACTIVE) ---
+
   "otp fraud": {
-    title: "Investigative Protocol for OTP Fraud",
+    title: "Guided Investigation for OTP Fraud",
     keywords: ["otp", "one time password", "vishing", "card kyc", "reward points"],
     registration: "FIR registration is required under relevant sections.",
-    steps: [
-      {
-        step: 1,
-        description: "Collect the victim's complaint, bank account statement showing the fraudulent transaction, and any relevant SMS or email.",
-        evidenceChecklist: ["Victim's written complaint", "Bank account statement", "Screenshot of fraudulent messages"],
-        coordination: ["Complainant"],
-        legal: "Initial complaint recording as per Section 154 Cr.P.C. is the first step."
-      },
-      {
-        step: 2,
-        description: "Immediately send a legal notice to the concerned bank or merchant (e.g., Amazon, Flipkart, E-wallet provider) to freeze the account where the illegal transaction was made. This step is time-critical to prevent further fund movement.",
-        evidenceChecklist: ["Copy of the notice sent to the bank/merchant", "Acknowledgement of receipt from the entity"],
-        coordination: [],
-        legal: "Issue notice under Section 91 Cr.P.C. to preserve evidence and prevent disposal of stolen funds."
-      },
-      // ... (other steps for OTP fraud) ...
-    ],
-    qa: {
-      "first step": "The first step is always to collect the victim's detailed complaint, bank statement showing the fraud, and any messages they received. This forms the basis of the FIR.",
-      "stop the money": "To stop the money, you must immediately send a notice under Section 91 Cr.P.C. to the beneficiary bank or merchant to freeze the account. Time is critical.",
-      "trace the accused": "Tracing the accused involves analyzing the money trail, getting Call Detail Records (CDR) for linked mobile numbers, and conducting physical verification of KYC addresses."
-    },
+    // This SOP now uses the interactive flow
+    steps: [],
+    summary: {},
+    qa: {},
     definitions: {
       "complaint": "A formal allegation against someone on the commission of an offense, made to a magistrate or police officer.",
       "fir": "First Information Report, a document prepared by police organizations when they receive information about the commission of a cognizable offense.",
@@ -114,37 +98,35 @@ const sopData = {
   },
 
   "sim swap fraud": {
-    title: "Investigative Protocol for SIM Swap Fraud",
+    title: "Guided Investigation for SIM Swap Fraud",
     keywords: ["sim swap", "duplicate sim", "sim cloning", "no network"],
     registration: "FIR registration is required.",
-    steps: [
-      { step: 1, description: "Obtain a detailed complaint from the victim, including the exact time they lost network connectivity and details of unauthorized transactions.", evidenceChecklist: ["Victim's written complaint", "Bank statement"], coordination: ["Complainant"], legal: "Initial complaint recording as per Section 154 Cr.P.C." },
-      // ... (other steps for SIM swap) ...
-    ],
-    qa: {
-        "what is sim swap": "SIM swap fraud is when a criminal obtains a duplicate SIM card for a victim's mobile number. This allows them to intercept OTPs and gain unauthorized access to bank accounts.",
-        "victim do first": "Advise the victim to immediately contact their mobile service provider to block the old SIM and get a new one issued. This is the fastest way to regain control of their number.",
-        "find the fraudster": "Start by sending a notice to the mobile operator for the documents submitted to get the duplicate SIM. Then, conduct an enquiry at the store where the swap occurred and collect CCTV footage."
-    },
+    // This SOP now uses the interactive flow
+    steps: [],
+    summary: {},
+    qa: {},
     definitions: {
         "otp": "One-Time Password, a password that is valid for only one login session or transaction.",
-        "cctv": "Closed-Circuit Television, used for video surveillance. The footage is critical evidence for identifying a suspect at a store or ATM."
+        "cctv": "Closed-Circuit Television, used for video surveillance. The footage is critical evidence for identifying a suspect at a store or ATM.",
+        "sdr": "Subscriber Detail Record. The identity and address documents submitted when getting a SIM card."
     }
   },
 
   "social media impersonation": {
-    title: "Investigative Protocol for Social Media Impersonation",
-    keywords: ["facebook fake account", "instagram impersonation", "twitter fake profile", "defamation"],
+    title: "Guided Investigation for Social Media Impersonation",
+    keywords: ["facebook fake account", "instagram impersonation", "twitter fake profile", "defamation", "stalking", "extortion"],
     registration: "FIR registration is required if cognizable offenses like stalking, defamation, or extortion are involved.",
-    steps: [
-        { step: 1, description: "Preserve the evidence by taking screenshots of the fake profile/posts and copying the URL of the fake profile.", evidenceChecklist: ["Screenshots of the profile/posts", "URL of the profile"], coordination: ["Complainant"], legal: "Collection of primary digital evidence." },
-       // ... (other steps for social media) ...
-    ],
+    // This SOP now uses the interactive flow
+    steps: [],
     summary: {},
     qa: {},
     definitions: {
         "url": "Uniform ResourceLocator, it is the web address of a specific profile or page. It's crucial for identifying the exact fake profile.",
-        "ip address": "Internet Protocol address. A unique numerical label assigned to each device connected to a computer network. IP logs are essential for tracing the location of the suspect."
+        "ip address": "Internet Protocol address. A unique numerical label assigned to each device connected to a computer network. IP logs are essential for tracing the location of the suspect.",
+        "sec 66c": "Section 66C of the IT Act, for Identity Theft.",
+        "sec 67": "Section 67 of the IT Act, for publishing or transmitting obscene material.",
+        "sec 500 ipc": "Section 500 of the IPC, for Defamation.",
+        "sec 354d ipc": "Section 354D of the IPC, for Stalking."
     }
   }
 };
